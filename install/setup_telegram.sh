@@ -148,20 +148,13 @@ openclaw agents add jobhunter \
     --non-interactive \
     --json 2>/dev/null || true
 
-# The dmPolicy allowlist must be set in openclaw.json directly
-# openclaw agents add doesn't expose telegram channel policy flags,
-# so we use openclaw config set (if available) or patch via python helper
-if openclaw config set "channels.telegram.botToken" "$BOT_TOKEN" 2>/dev/null; then
-    openclaw config set "channels.telegram.dmPolicy"  "allowlist"
-    openclaw config set "channels.telegram.allowFrom" "[\"$USER_ID\"]"
-    echo -e "  ${GREEN}✓ OpenClaw channel config updated via CLI${RESET}"
-else
-    # Fallback: python patch
-    python3 "$INSTALL_DIR/install/patch_telegram_config.py" \
-        --bot-token "$BOT_TOKEN" \
-        --user-id   "$USER_ID"
-    echo -e "  ${GREEN}✓ OpenClaw config patched${RESET}"
-fi
+# Patch openclaw.json atomically — all telegram fields written in one operation.
+# Sequential openclaw config set calls fail validation because dmPolicy=allowlist
+# requires allowFrom to already have at least one ID at the moment of writing.
+python3 "$INSTALL_DIR/install/patch_telegram_config.py" \
+    --bot-token "$BOT_TOKEN" \
+    --user-id   "$USER_ID"
+echo -e "  ${GREEN}✓ OpenClaw config patched${RESET}"
 
 echo ""
 echo "────────────────────────────────────────"

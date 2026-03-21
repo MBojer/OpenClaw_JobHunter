@@ -130,18 +130,13 @@ python3 "$INSTALL_DIR/scripts/db/check_budget.py" 2>/dev/null \
     || warn "Budget check warning — see above"
 
 # ── Cron jobs ────────────────────────────────────────────────────────────────
-OPENCLAW_CONFIG="$HOME/.openclaw/openclaw.json"
-if [ -f "$OPENCLAW_CONFIG" ] && python3 -c "
-import json, sys
-config = json.load(open('$OPENCLAW_CONFIG'))
-cron_ids = [j.get('id','') for j in config.get('cron', [])]
-required = {'jobhunter-morning-scrape','jobhunter-evening-scrape','jobhunter-digest'}
-missing = required - set(cron_ids)
-sys.exit(1 if missing else 0)
-" 2>/dev/null; then
-    ok "Cron jobs registered (3/3)"
+# Cron jobs are registered AFTER the gateway is started (Gateway RPC required).
+# Run: python3 install/setup_cron.py  (once the gateway is running)
+CRON_STORE="$HOME/.openclaw/cron/jobs.json"
+if [ -f "$CRON_STORE" ]; then
+    ok "Cron store exists — jobs registered"
 else
-    fail "Cron jobs missing — run: python3 install/setup_cron.py"
+    warn "Cron jobs not yet registered — run: python3 install/setup_cron.py (after starting gateway)"
 fi
 
 # ── Summary ──────────────────────────────────────────────────────────────────

@@ -101,12 +101,7 @@ info "Setting up Telegram..."
 bash install/setup_telegram.sh
 success "Telegram configured"
 
-# ── Step 9: Register cron jobs ──────────────────────────────────────────────
-info "Registering cron jobs..."
-python3 install/setup_cron.py
-success "Cron jobs registered"
-
-# ── Step 10: Health check ───────────────────────────────────────────────────
+# ── Step 9: Health check ───────────────────────────────────────────────────
 info "Running health check..."
 bash install/verify.sh
 
@@ -120,7 +115,8 @@ echo "  Workspace: $WORKSPACE"
 echo "  (This is your git repo — update anytime with: cd $WORKSPACE && git pull)"
 echo ""
 echo "  Next steps:"
-echo "  1. Start the OpenClaw gateway: openclaw gateway"
-echo "  2. Open your Telegram bot and send: /start"
-echo "  3. Paste your LinkedIn profile when prompted"
+echo "  1. Start the gateway:       openclaw gateway"
+echo "  2. Register cron jobs:      python3 install/setup_cron.py"
+echo "  3. Message your bot:        /start"
+  echo "  4. Paste your LinkedIn profile when prompted"
 echo ""

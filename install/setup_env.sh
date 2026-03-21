@@ -27,9 +27,9 @@ prompt() {
     fi
     # Write to .env (append or update)
     if grep -q "^${var}=" "$ENV_FILE" 2>/dev/null; then
-        sed -i "s|^${var}=.*|${var}=${val}|" "$ENV_FILE"
+        sed -i "s|^${var}=.*|${var}=\"${val}\"|" "$ENV_FILE"
     else
-        echo "${var}=${val}" >> "$ENV_FILE"
+        echo "${var}=\"${val}\"" >> "$ENV_FILE"
     fi
 }
 
@@ -46,9 +46,9 @@ prompt_secret() {
         echo ""
     done
     if grep -q "^${var}=" "$ENV_FILE" 2>/dev/null; then
-        sed -i "s|^${var}=.*|${var}=${val}|" "$ENV_FILE"
+        sed -i "s|^${var}=.*|${var}=\"${val}\"|" "$ENV_FILE"
     else
-        echo "${var}=${val}" >> "$ENV_FILE"
+        echo "${var}=\"${val}\"" >> "$ENV_FILE"
     fi
 }
 

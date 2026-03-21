@@ -96,7 +96,7 @@ When user says `/apply N`:
 
 ## Commands the user can send
 
-- `/start`         — begin onboarding
+- `/start`         — begin onboarding (also registers cron jobs on first run)
 - `/digest`        — show today's matches now
 - `/apply [N]`     — generate + deliver documents for job #N
 - `/hide [N]`      — mark job #N as not interested

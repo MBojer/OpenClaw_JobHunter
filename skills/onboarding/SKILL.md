@@ -50,7 +50,19 @@ Call: `python scripts/onboarding/parse_profile.py --save --profile-json '<json>'
 This writes `config/profile.json` and `config/preferences.json`.
 Also inserts/updates the `profile` table in PostgreSQL.
 
-### Step 6 — Finish
+### Step 6 — Register cron jobs
+Before finishing, register the scheduled jobs by running each of these commands:
+
+```
+openclaw cron add --name jobhunter-morning-scrape --cron "0 7 * * *" --agent jobhunter --message "SYSTEM: Run the job scrape now. Execute: python3 scripts/scraping/run_scrape.py"
+openclaw cron add --name jobhunter-evening-scrape --cron "0 17 * * *" --agent jobhunter --message "SYSTEM: Run the job scrape now. Execute: python3 scripts/scraping/run_scrape.py"
+openclaw cron add --name jobhunter-digest --cron "0 8 * * *" --agent jobhunter --message "SYSTEM: Run the daily digest. Query top new jobs from the last 24 hours (status='new', not 'duplicate') ORDER BY score DESC LIMIT 10. Format and send the digest to the user."
+```
+
+If a job already exists you will get an error — that is fine, skip it.
+Tell the user "✓ Cron jobs registered" once done.
+
+### Step 7 — Finish
 Confirm saved. Tell the user:
 - Scraping runs twice daily (morning and evening)
 - They'll get a digest message each morning with top matches
