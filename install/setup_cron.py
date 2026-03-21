@@ -16,7 +16,7 @@ WORKSPACE   = Path(os.environ.get(
 ))
 
 # Scripts live inside the workspace (repo root)
-SCRAPE_CMD = f"python {WORKSPACE}/scripts/scraping/run_scrape.py"
+SCRAPE_CMD = f"python3 {WORKSPACE}/scripts/scraping/run_scrape.py"
 
 CRON_JOBS = [
     {

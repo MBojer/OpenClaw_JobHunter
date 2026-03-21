@@ -60,7 +60,7 @@ fi
 
 # ── Step 5: Database migrations ─────────────────────────────────────────────
 info "Running database migrations..."
-python scripts/db/migrate.py
+python3 scripts/db/migrate.py
 success "Database ready"
 
 # ── Step 6: Ollama model ────────────────────────────────────────────────────
@@ -103,7 +103,7 @@ success "Telegram configured"
 
 # ── Step 9: Register cron jobs ──────────────────────────────────────────────
 info "Registering cron jobs..."
-python install/setup_cron.py
+python3 install/setup_cron.py
 success "Cron jobs registered"
 
 # ── Step 10: Health check ───────────────────────────────────────────────────

@@ -58,7 +58,7 @@ if missing:
 " 2>/dev/null; then
     ok "Database schema (all tables present)"
 else
-    fail "Database schema incomplete — run: python scripts/db/migrate.py"
+    fail "Database schema incomplete — run: python3 scripts/db/migrate.py"
 fi
 
 # ── Ollama ───────────────────────────────────────────────────────────────────
@@ -141,7 +141,7 @@ sys.exit(1 if missing else 0)
 " 2>/dev/null; then
     ok "Cron jobs registered (3/3)"
 else
-    fail "Cron jobs missing — run: python install/setup_cron.py"
+    fail "Cron jobs missing — run: python3 install/setup_cron.py"
 fi
 
 # ── Summary ──────────────────────────────────────────────────────────────────
