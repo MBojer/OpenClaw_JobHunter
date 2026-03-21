@@ -43,7 +43,7 @@ def run():
         print(f"  Applying {version}...")
         cur.execute(migration.read_text())
         cur.execute(
-            "INSERT INTO schema_migrations (version) VALUES (%s)", (version,)
+            "INSERT INTO schema_migrations (version) VALUES (%s) ON CONFLICT DO NOTHING", (version,)
         )
         print(f"  ✓ {version} applied")
 

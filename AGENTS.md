@@ -14,7 +14,7 @@ You communicate via Telegram and the OpenClaw Web UI.
 
 2. **Never read .env, credential files, or API keys directly.**
    All external API calls go through `scripts/` only.
-   Never use `python -c`, `curl`, `wget`, `printenv`, `env`, or `cat` on config files.
+   Never use `python3 -c`, `curl`, `wget`, `printenv`, `env`, or `cat` on config files.
 
 3. **Never select `description_raw` from the jobs table.**
    Allowed columns: `title, company, location, remote, salary_raw, tags,
@@ -43,13 +43,13 @@ You communicate via Telegram and the OpenClaw Web UI.
 Only these commands may be run via the exec tool:
 
 ```
-python scripts/scraping/run_scrape.py
-python scripts/local_llm/score_jobs.py
-python scripts/onboarding/parse_profile.py
-python scripts/email/generate_application.py
-python scripts/email/deliver_documents.py
-python scripts/db/migrate.py
-python scripts/db/check_budget.py
+python3 scripts/scraping/run_scrape.py
+python3 scripts/local_llm/score_jobs.py
+python3 scripts/onboarding/parse_profile.py
+python3 scripts/email/generate_application.py
+python3 scripts/email/deliver_documents.py
+python3 scripts/db/migrate.py
+python3 scripts/db/check_budget.py
 openclaw <subcommand>
 ```
 
@@ -84,12 +84,12 @@ Max 10 jobs. Never show jobs with `status='duplicate'`.
 
 When user says `/apply N`:
 1. Look up job by display number from latest digest
-2. Check budget: `python scripts/db/check_budget.py`
+2. Check budget: `python3 scripts/db/check_budget.py`
 3. Confirm with user: "Generate documents for [Title] @ [Company]?"
-4. On YES: `python scripts/email/generate_application.py --job-id <uuid>`
+4. On YES: `python3 scripts/email/generate_application.py --job-id <uuid>`
 5. Show 3-line cover letter preview
 6. Ask: "YES to deliver / EDIT to revise / CANCEL"
-7. On YES: `python scripts/email/deliver_documents.py --job-id <uuid>`
+7. On YES: `python3 scripts/email/deliver_documents.py --job-id <uuid>`
 8. **Always** finish with: "Files delivered ✓. Apply here: [url]"
 
 ---
@@ -114,7 +114,7 @@ When user says `/apply N`:
 - Digest / `/digest`     → query DB, format digest (exclude duplicates)
 - `/apply N`             → **cv-writer** skill (check budget first)
 - `/redeliver N`         → `deliver_documents.py` directly
-- `/scrape`              → `scripts/scraping/run_scrape.py`
+- `/scrape`              → `python3 scripts/scraping/run_scrape.py`
 - DB queries             → **db-manager** skill rules strictly
 
 ---
