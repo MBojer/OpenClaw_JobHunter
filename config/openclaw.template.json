@@ -1,0 +1,103 @@
+{
+  "agents": {
+    "list": [
+      {
+        "id": "jobhunter",
+        "name": "JobHunter",
+        "workspace": "~/.openclaw/workspace-jobhunter",
+        "model": "${OPENROUTER_MODEL}",
+        "identity": {
+          "emoji": "🦞",
+          "name": "JobHunter"
+        },
+        "groupChat": {
+          "mentionPatterns": ["@jobhunter", "jobhunter"]
+        }
+      }
+    ]
+  },
+
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "botToken": "${TELEGRAM_BOT_TOKEN}",
+
+      "dmPolicy": "allowlist",
+      "allowFrom": ["${TELEGRAM_USER_ID}"],
+
+      "streaming": "partial",
+      "linkPreview": false,
+
+      "dmHistoryLimit": 50,
+
+      "capabilities": {
+        "inlineButtons": "dm"
+      },
+
+      "actions": {
+        "sendMessage": true,
+        "reactions": true,
+        "sticker": false
+      }
+    }
+  },
+
+  "messages": {
+    "compaction": {
+      "enabled": true,
+      "tokenThreshold": 180000,
+      "strategy": "summarize"
+    },
+    "sessionPruning": {
+      "enabled": true,
+      "maxAgeDays": 30
+    }
+  },
+
+  "gateway": {
+    "port": 18789,
+    "bind": "loopback",
+    "auth": {
+      "enabled": true
+    }
+  },
+
+  "skills": {
+    "install": {
+      "nodeManager": "npm"
+    }
+  },
+
+  "_comment_tools": "Exec restrictions prevent the agent from reading secrets or calling APIs directly. All external calls must go through scripts/.",
+  "tools": {
+    "exec": {
+      "enabled": true,
+      "approvals": "auto",
+      "allowedCommands": [
+        "python scripts/scraping/run_scrape.py",
+        "python scripts/local_llm/score_jobs.py",
+        "python scripts/onboarding/parse_profile.py",
+        "python scripts/email/generate_application.py",
+        "python scripts/email/deliver_documents.py",
+        "python scripts/db/migrate.py",
+        "python scripts/db/check_budget.py",
+        "openclaw"
+      ],
+      "blockedPatterns": [
+        "*/.env*",
+        "*/.env",
+        "cat *",
+        "grep *",
+        "curl *",
+        "wget *",
+        "printenv",
+        "printenv *",
+        "env",
+        "env *",
+        "export *",
+        "python -c *",
+        "python3 -c *"
+      ]
+    }
+  }
+}

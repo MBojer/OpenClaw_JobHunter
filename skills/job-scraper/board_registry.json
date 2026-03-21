@@ -1,0 +1,32 @@
+{
+  "_note": "Active job board connectors. Set enabled=false to pause a board without deleting it.",
+  "boards": [
+    {
+      "slug": "jobindex",
+      "name": "Jobindex.dk",
+      "tier": 1,
+      "enabled": true,
+      "connector": "scripts/scraping/boards/jobindex.py",
+      "rss_url": "https://www.jobindex.dk/jobsoegning.rss?q={query}&superjob=1",
+      "queries": []
+    },
+    {
+      "slug": "indeed",
+      "name": "Indeed",
+      "tier": 1,
+      "enabled": true,
+      "connector": "scripts/scraping/boards/indeed.py",
+      "rss_url": "https://dk.indeed.com/rss?q={query}&l={location}&sort=date",
+      "queries": []
+    },
+    {
+      "slug": "it_jobbank",
+      "name": "IT-jobbank.dk",
+      "tier": 2,
+      "enabled": true,
+      "connector": "scripts/scraping/boards/it_jobbank.py",
+      "base_url": "https://www.it-jobbank.dk/jobsoegning",
+      "queries": []
+    }
+  ]
+}

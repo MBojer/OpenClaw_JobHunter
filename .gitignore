@@ -1,0 +1,46 @@
+# Environment — never commit secrets
+.env
+.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Generated profile data — contains personal info
+config/profile.json
+config/preferences.json
+
+# Logs
+*.log
+logs/
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Skills lockfile (local state, not repo state)
+.clawhub/
+
+# Workspace runtime files — personal, not for repo
+tmp/
+memory/
+config/profile.json
+config/preferences.json
+
+# OpenClaw session files if workspace is ever inside .openclaw
+sessions/

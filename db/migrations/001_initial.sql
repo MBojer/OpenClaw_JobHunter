@@ -1,0 +1,4 @@
+-- migrations/001_initial.sql
+-- Base schema is applied via db/schema.sql (which is always idempotent).
+-- This file exists as the first migration marker — no additional SQL needed here.
+-- Future migrations go in 002_*.sql, 003_*.sql, etc.
