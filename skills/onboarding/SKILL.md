@@ -55,10 +55,21 @@ Ask the user two questions:
 1. "Are you looking for remote, local, or both?"
 2. "Which country or region?" (skip if remote only)
 
-Then search for relevant job boards using web search:
-- For remote: search "best remote job boards [field]"
-- For local: search "job boards [country] [field]"
-- For both: search both
+Then search for relevant job boards using SearXNG directly:
+```python
+import sys, json, os, urllib.request, urllib.parse
+sys.path.insert(0, '.')
+from dotenv import load_dotenv; load_dotenv()
+base = os.environ.get('SEARXNG_URL', 'http://localhost')
+# Adjust query based on remote/local preference
+query = 'best remote job boards software' # or 'job boards Denmark IT'
+q = urllib.parse.urlencode({'q': query, 'format': 'json', 'language': 'en'})
+req = urllib.request.Request(f'{base}/search?{q}', headers={'Accept': 'application/json'})
+data = json.loads(urllib.request.urlopen(req, timeout=10).read())
+results = [(r['title'], r['url']) for r in data.get('results', [])[:15]]
+print(json.dumps(results))
+```
+Extract domain names from URLs and present as a numbered list.
 
 Present up to 10 results as a numbered list:
 ```

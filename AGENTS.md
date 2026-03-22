@@ -176,8 +176,21 @@ D — Done
 
 3. On A — Search for boards:
    - Ask: "What field and country? (e.g. 'IT jobs Denmark' or 'remote software jobs')"
-   - Search SearXNG: use web search for "[query] job board site list"
-   - Present results as a numbered list, excluding already-added boards
+   - Search SearXNG directly using this Python snippet:
+```python
+import sys, json, os, urllib.request, urllib.parse
+sys.path.insert(0, '.')
+from dotenv import load_dotenv; load_dotenv()
+base = os.environ.get('SEARXNG_URL', 'http://localhost')
+q = urllib.parse.urlencode({'q': '[USER_QUERY] job board list', 'format': 'json', 'language': 'en'})
+req = urllib.request.Request(f'{base}/search?{q}', headers={'Accept': 'application/json'})
+data = json.loads(urllib.request.urlopen(req, timeout=10).read())
+results = [(r['title'], r['url']) for r in data.get('results', [])[:15]]
+print(json.dumps(results))
+```
+   - Extract domain names from the URLs returned
+   - Filter out any already in the user's board list
+   - Present as a numbered list for the user to pick from
    - User replies with numbers to add
 
 4. On B — Add custom:
