@@ -21,9 +21,54 @@ echo -e "${BOLD}║   JobHunter v2 Installer 🦞   ║${RESET}"
 echo -e "${BOLD}╚══════════════════════════════╝${RESET}"
 echo ""
 
-# ── Step 1: Prerequisites ────────────────────────────────────────────────────
+# ── Step 1: Prerequisites (inlined — repo not cloned yet at this point) ──────
 info "Checking prerequisites..."
-bash "$(dirname "$0")/install/check_prereqs.sh" || error "Prerequisites check failed."
+PREREQ_FAIL=0
+
+prereq_check() {
+    local name="$1" cmd="$2" hint="$3"
+    if eval "$cmd" &>/dev/null; then
+        echo "  ✓ $name"
+    else
+        echo "  ✗ $name — $hint"
+        PREREQ_FAIL=1
+    fi
+}
+
+prereq_check "Node.js 22+" \
+    "node -e 'process.exit(parseInt(process.version.slice(1)) >= 22 ? 0 : 1)'" \
+    "Install from https://nodejs.org — need v22 or higher"
+
+prereq_check "Python 3.10+" \
+    "python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)'" \
+    "Install Python 3.10+ from https://python.org"
+
+prereq_check "pip / pip3" \
+    "pip --version || pip3 --version" \
+    "pip is required — install via: apt install python3-pip"
+
+prereq_check "OpenClaw" \
+    "openclaw --version" \
+    "Install OpenClaw: npm install -g openclaw@latest"
+
+prereq_check "git" \
+    "git --version" \
+    "Install git: apt install git"
+
+# Ollama — warn only, may be remote and .env not set up yet
+OLLAMA_URL="${OLLAMA_BASE_URL:-http://localhost:11434}"
+if curl -sf "${OLLAMA_URL}/api/tags" &>/dev/null; then
+    echo "  ✓ Ollama reachable at $OLLAMA_URL"
+else
+    echo "  ⚠  Ollama not reachable at $OLLAMA_URL — configure OLLAMA_BASE_URL in .env if remote"
+fi
+
+echo "  ✓ PostgreSQL (connectivity checked after .env setup)"
+
+if [ "$PREREQ_FAIL" -eq 1 ]; then
+    echo ""
+    error "Prerequisites check failed — fix the issues above and re-run."
+fi
 success "Prerequisites OK"
 
 # ── Step 2: Clone repo directly into OpenClaw workspace ─────────────────────
@@ -47,7 +92,7 @@ cd "$WORKSPACE"
 
 # ── Step 3: Python dependencies ─────────────────────────────────────────────
 info "Installing Python dependencies..."
-pip install -r requirements.txt --break-system-packages -q
+pip install -r requirements.txt --break-system-packages -q 2>/dev/null || pip3 install -r requirements.txt --break-system-packages -q
 success "Python dependencies installed"
 
 # ── Step 4: Environment setup ───────────────────────────────────────────────
@@ -81,7 +126,6 @@ else
 fi
 
 # ── Step 7: Register agent with OpenClaw ────────────────────────────────────
-# Repo IS the workspace — just register the agent pointing at it
 info "Registering JobHunter agent with OpenClaw..."
 AGENT_MODEL="${OPENROUTER_MODEL:-openrouter/stepfun/step-3.5-flash:free}"
 
@@ -101,7 +145,7 @@ info "Setting up Telegram..."
 bash install/setup_telegram.sh
 success "Telegram configured"
 
-# ── Step 9: Health check ───────────────────────────────────────────────────
+# ── Step 9: Health check ────────────────────────────────────────────────────
 info "Running health check..."
 bash install/verify.sh
 
@@ -117,6 +161,6 @@ echo ""
 echo "  Next steps:"
 echo "  1. Start the gateway:       openclaw gateway"
 echo "  2. Register cron jobs:      python3 install/setup_cron.py"
-echo "  3. Message your bot:        /start"
+echo "  3. Message your bot:        /onboard"
 echo "  4. Paste your LinkedIn profile when prompted"
 echo ""
