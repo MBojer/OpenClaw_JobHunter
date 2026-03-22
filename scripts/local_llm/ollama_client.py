@@ -1,5 +1,5 @@
 """
-scripts/local-llm/ollama_client.py
+scripts/local_llm/ollama_client.py
 Minimal Ollama API client for Qwen2.5:7b.
 All local inference goes through this module.
 """
@@ -19,27 +19,33 @@ class OllamaError(Exception):
     pass
 
 
-def generate(prompt: str, model: str = None, temperature: float = 0.1) -> str:
+def generate(prompt: str, model: str = None, temperature: float = 0.1,
+             json_mode: bool = False) -> str:
     """
     Send a prompt to Ollama and return the response text.
     Uses low temperature by default — we want consistent structured output.
+    Set json_mode=True to force Ollama to return valid JSON (recommended for
+    scoring and parsing prompts).
     """
     model = model or OLLAMA_MODEL
     url   = f"{OLLAMA_BASE_URL}/api/generate"
 
-    payload = json.dumps({
+    payload: dict = {
         "model":  model,
         "prompt": prompt,
         "stream": False,
         "options": {
             "temperature": temperature,
-            "num_predict": 2048,
+            "num_predict": 512,   # Scoring responses are short — cap tokens
         },
-    }).encode()
+    }
+
+    if json_mode:
+        payload["format"] = "json"
 
     req = urllib.request.Request(
         url,
-        data=payload,
+        data=json.dumps(payload).encode(),
         headers={"Content-Type": "application/json"},
         method="POST",
     )

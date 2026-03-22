@@ -106,15 +106,15 @@ def score_jobs(limit: int = None, rescore: bool = False, job_id: str = None):
     for job in jobs:
         job_id_str = str(job["id"])
         try:
-            prompt = SCORE_PROMPT_TEMPLATE.format(
-                profile_summary    = profile_summary,
-                hard_requirements  = hard_requirements,
-                title              = job["title"] or "",
-                company            = job["company"] or "",
-                location           = job["location"] or "",
-                description        = (job["description_raw"] or "")[:3000],
+            prompt = (SCORE_PROMPT_TEMPLATE
+                .replace("{profile_summary}",   profile_summary)
+                .replace("{hard_requirements}", hard_requirements)
+                .replace("{title}",             job["title"] or "")
+                .replace("{company}",           job["company"] or "")
+                .replace("{location}",          job["location"] or "")
+                .replace("{description}",       (job["description_raw"] or "")[:3000])
             )
-            response = generate(prompt)
+            response = generate(prompt, json_mode=True)
             parsed   = parse_json_response(response)
 
             if not parsed or "score" not in parsed:
@@ -122,7 +122,12 @@ def score_jobs(limit: int = None, rescore: bool = False, job_id: str = None):
                 errors += 1
                 continue
 
-            score  = max(0, min(100, int(parsed["score"])))
+            try:
+                score = max(0, min(100, int(float(str(parsed["score"]).strip()))))
+            except (ValueError, TypeError):
+                print(f"  ✗ {job['title']} — invalid score value: {parsed['score']!r}")
+                errors += 1
+                continue
             tags   = parsed.get("tags", [])
             reason = parsed.get("reason", "")[:300]
 
