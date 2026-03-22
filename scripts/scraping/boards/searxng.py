@@ -49,6 +49,50 @@ class SearxngConnector(BaseConnector):
         self.language    = config.get("language", "da-DK")
         self.site_filter = config.get("site_filter", "")
 
+    # Domains that never contain job postings
+    BLOCKED_DOMAINS = {
+        "facebook.com", "twitter.com", "x.com", "instagram.com",
+        "youtube.com", "tiktok.com", "reddit.com", "quora.com",
+        "wikipedia.org", "bitly.com", "bit.ly", "t.co",
+        "microsoft.com", "google.com", "apple.com", "amazon.com",
+        "accounts.google.com", "myaccount.microsoft.com",
+        "rc-network.de", "translate.google.com",
+    }
+
+    # Title fragments that indicate non-job results
+    BLOCKED_TITLE_FRAGMENTS = [
+        "traductor", "translate", "sign in", "log in", "create account",
+        "short url", "url shortener", "link shortener", "how to",
+        "what is", "suche", "recherche", "søg",
+    ]
+
+    MIN_DESCRIPTION_LEN = 50  # Characters — anything shorter is a nav link, not a job
+
+    def _is_valid_result(self, result: dict) -> bool:
+        url   = result.get("url", "")
+        title = result.get("title", "").lower()
+        desc  = result.get("content", "")
+
+        # Block by domain
+        try:
+            from urllib.parse import urlparse
+            domain = urlparse(url).netloc.lower().lstrip("www.")
+            if any(domain == b or domain.endswith("." + b)
+                   for b in self.BLOCKED_DOMAINS):
+                return False
+        except Exception:
+            pass
+
+        # Block by title fragment
+        if any(frag in title for frag in self.BLOCKED_TITLE_FRAGMENTS):
+            return False
+
+        # Require minimum description length
+        if len(desc) < self.MIN_DESCRIPTION_LEN:
+            return False
+
+        return True
+
     def fetch(self, queries: list[str]) -> list[JobListing]:
         results = []
         seen_urls = set()
@@ -69,7 +113,7 @@ class SearxngConnector(BaseConnector):
 
     def _search(self, query: str) -> list[JobListing]:
         # Build search query — append "job" and site filter if configured
-        full_query = f"{query} job"
+        full_query = f"{query} stilling"
         if self.site_filter:
             full_query += f" ({self.site_filter})"
 
@@ -95,7 +139,7 @@ class SearxngConnector(BaseConnector):
         return [
             self._parse_result(r)
             for r in data.get("results", [])
-            if r.get("url")
+            if r.get("url") and self._is_valid_result(r)
         ]
 
     def _parse_result(self, result: dict) -> JobListing:
