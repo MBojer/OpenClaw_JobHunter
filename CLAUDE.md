@@ -182,6 +182,13 @@ https://raw.githubusercontent.com/MBojer/OpenClaw_JobHunter/main/db/schema.sql
 All changes should be made as numbered patch scripts in `patches/`.
 This avoids regenerating whole files and reduces copy-paste errors.
 
+Key conventions:
+- Patches include `auto_commit()` at the end — no manual git needed
+- Large string content (e.g. AGENTS.md rewrites) goes in a separate `.txt` file
+  to avoid Python triple-quote nesting issues (see patches/008_agents_content.txt)
+- CLAUDE.md should be updated in patches when architecture changes
+- `raw.githubusercontent.com` has CDN lag — verify changes on server not via raw URLs
+
 ```python
 # patches/NNN_description.py
 def patch(description, path, old, new):
@@ -213,10 +220,11 @@ Gateway must be restarted to pick up changes to AGENTS.md and skill files.
 ## Known issues / current state
 
 - **company/location** — extracted by Qwen during scoring (not from scraper). Run `--rescore` after adding new jobs to backfill.
-- **SearXNG** — still returns some noise (category pages, municipality portals). Blocklists are iteratively improved.
+- **SearXNG** — blocklists iteratively improved via patches. time_range disabled when site_filter is set (combination returns 0 results).
 - **Indeed** — disabled, 403 Forbidden. Covered by SearXNG.
 - **IT-jobbank** — disabled, HTML selectors need updating.
 - **Cron registration** — requires gateway to be running. Agent registers cron during `/onboard`.
+- **raw.githubusercontent.com CDN lag** — up to 30 min behind actual commits. Always verify file state on the server, not via raw GitHub URLs.
 
 ---
 

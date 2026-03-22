@@ -64,6 +64,11 @@ class SearxngConnector(BaseConnector):
         "woman.dk", "akassedenmark.dk", "detsocialenetvaerk.dk",
         "ansogningshjaelpen.dk", "skrivsikkert.dk",
         "jooble.org", "solidit.dk",
+        "careerjet.dk", "careerjet.com",    # Aggregator — low quality
+        "jobted.dk",                          # Aggregator
+        "jobsearch.dk",                       # Aggregator
+        "profic.dk",                          # Guide/info site
+        "hk.dk",                              # Union portal, not job postings
     }
 
     # ── URL path fragments that indicate non-job pages ────────────────────────
@@ -77,6 +82,10 @@ class SearxngConnector(BaseConnector):
         "/news/", "/learn/", "/courses/", "/training/", "/certification/",
         "/art/",
         "/karriere/se-ledige-job",
+        "/jobsoegning",          # Jobindex category pages
+        "/find-job",             # Jobnet category pages
+        "-jobs",                 # Careerjet/LinkedIn listing pages
+        "/jobs/",               # Generic job listing pages
     ]
 
     # ── Title fragments that indicate non-job results ─────────────────────────
@@ -90,6 +99,11 @@ class SearxngConnector(BaseConnector):
         "leder du efter",
         "7 steder",
         "se ledige job",
+        "jobs i danmark", "job i danmark",
+        "ledige stillinger fra",
+        " nye) -",
+        "jobportal",
+        "den komplette guide",
     ]
 
     MIN_DESCRIPTION_LEN = 50
