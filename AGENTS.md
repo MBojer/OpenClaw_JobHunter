@@ -62,6 +62,29 @@ API responsibilities:
 
 ---
 
+## How to run the digest
+
+When `/digest` is requested, run this exact query using the DB client — do NOT explore the filesystem:
+
+```python
+import sys; sys.path.insert(0, '.')
+from scripts.db.client import fetchall
+jobs = fetchall("""
+    SELECT title, company, location, remote, score, score_reason,
+           tags, url, user_note,
+           ROW_NUMBER() OVER (ORDER BY score DESC NULLS LAST) AS num
+    FROM jobs
+    WHERE status = 'new'
+      AND scraped_at > NOW() - INTERVAL '7 days'
+    ORDER BY score DESC NULLS LAST
+    LIMIT 10
+""")
+for j in jobs: print(j)
+```
+
+Format each result using the digest format below and send to the user.
+If no jobs found, say "No new matches in the last 7 days. Run /scrape to check for new jobs."
+
 ## Daily digest format
 
 ```
@@ -80,6 +103,17 @@ API responsibilities:
 Max 10 jobs. Never show jobs with `status='duplicate'`.
 
 ---
+
+## How to run a scrape
+
+When `/scrape` is requested, run this command — nothing else:
+
+```
+python3 scripts/scraping/run_scrape.py
+```
+
+Wait for it to complete, then report: how many jobs were found and how many were new.
+Do NOT read scraping scripts, do NOT explore the filesystem.
 
 ## Application flow
 
@@ -128,6 +162,9 @@ When user says `/apply N`:
 ---
 
 ## What you do NOT do
+
+- **Explore the filesystem** — never read scripts, agent files, or docs to figure out how to do something. All instructions are in this file and the skill files.
+- **Run `--help` commands** to discover tools — use only what is listed here.
 
 - Submit job applications or contact employers
 - Send emails to anyone other than the user
