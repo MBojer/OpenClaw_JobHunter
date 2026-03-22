@@ -57,13 +57,33 @@ class SearxngConnector(BaseConnector):
         "microsoft.com", "google.com", "apple.com", "amazon.com",
         "accounts.google.com", "myaccount.microsoft.com",
         "rc-network.de", "translate.google.com",
+        "naukri.com", "glassdoor.com", "glassdoor.co.uk", "glassdoor.co.in",
+        "itjobswatch.co.uk", "builtin.com", "internshala.com",
+        "netcomlearning.com", "simplilearn.com", "surftware.com",
+        "nextinhr.com", "vinaligroup.com", "anjusmriti.com",
+        "woman.dk", "akassedenmark.dk", "detsocialenetvaerk.dk",
+        "ansogningshjaelpen.dk", "skrivsikkert.dk",
+        "jooble.org", "solidit.dk",
     }
 
     # Title fragments that indicate non-job results
+    BLOCKED_PATH_FRAGMENTS = [
+        "/salary", "/salaries", "/blog", "/article", "/articles",
+        "/guide", "/guides", "/interview", "/interview-questions",
+        "/job-description", "/job-descriptions", "/career-advice",
+        "/news/", "/learn/", "/courses/", "/training/", "/certification/",
+        "how-to", "what-is", "types-of",
+        "/art/", "/karriere/se-ledige-job",
+    ]
+
     BLOCKED_TITLE_FRAGMENTS = [
         "traductor", "translate", "sign in", "log in", "create account",
         "short url", "url shortener", "link shortener", "how to",
         "what is", "suche", "recherche", "søg",
+        "salary", "salaries", "interview questions", "job description",
+        "job vacancies in", "types of", "guide to", "tips for",
+        "leder du efter", "her er", "7 steder",
+        "ledige job -", "se ledige job",
     ]
 
     MIN_DESCRIPTION_LEN = 50  # Characters — anything shorter is a nav link, not a job
@@ -79,6 +99,10 @@ class SearxngConnector(BaseConnector):
             domain = urlparse(url).netloc.lower().lstrip("www.")
             if any(domain == b or domain.endswith("." + b)
                    for b in self.BLOCKED_DOMAINS):
+                return False
+
+            path = parsed.path.lower()
+            if any(frag in path for frag in self.BLOCKED_PATH_FRAGMENTS):
                 return False
         except Exception:
             pass
