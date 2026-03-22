@@ -19,6 +19,14 @@
   "employment_type": ["full-time", "contract"],
   "min_score": 60,
   "digest_limit": 10,
+  "remote_preference": "both",
+  "job_boards": [
+    "remoteok.com",
+    "weworkremotely.com",
+    "jobindex.dk",
+    "it-jobbank.dk",
+    "thehub.io"
+  ],
   "delivery": {
     "method": "both",
     "_note": "Options: telegram | email | both"

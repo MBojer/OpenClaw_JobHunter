@@ -48,6 +48,15 @@ def load_queries() -> list[str]:
     return prefs.get("job_titles", [])
 
 
+def load_site_filter() -> str:
+    """Build site_filter from user's selected job boards in preferences."""
+    row = fetchone("SELECT preferences FROM profile WHERE id = 1")
+    if not row or not row["preferences"]:
+        return ""
+    boards = row["preferences"].get("job_boards", [])
+    return " OR ".join(boards) if boards else ""
+
+
 def url_exists(url: str) -> bool:
     row = fetchone("SELECT 1 FROM jobs WHERE url = %s", (url,))
     return row is not None
@@ -112,6 +121,13 @@ def run(board_filter: str = None, dry_run: bool = False):
         board_id = db_board["id"]
 
         try:
+            # Inject user's job board list as site_filter for SearXNG
+            if slug == 'searxng':
+                site_filter = load_site_filter()
+                if site_filter:
+                    board = dict(board)
+                    board['site_filter'] = site_filter
+
             connector = load_connector(slug, board)
             listings  = connector.fetch(queries)
             total_found += len(listings)

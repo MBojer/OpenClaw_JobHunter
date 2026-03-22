@@ -50,7 +50,37 @@ Call: `python3 scripts/onboarding/parse_profile.py --save --profile-json '<json>
 This writes `config/profile.json` and `config/preferences.json`.
 Also inserts/updates the `profile` table in PostgreSQL.
 
-### Step 6 — Register cron jobs
+### Step 6 — Discover job boards
+Ask the user two questions:
+1. "Are you looking for remote, local, or both?"
+2. "Which country or region?" (skip if remote only)
+
+Then search for relevant job boards using web search:
+- For remote: search "best remote job boards [field]"
+- For local: search "job boards [country] [field]"
+- For both: search both
+
+Present up to 10 results as a numbered list:
+```
+Here are job boards I found. Reply with the numbers you want,
+ALL for all of them, or NONE to skip:
+
+1. remoteok.com — Remote jobs worldwide
+2. weworkremotely.com — Remote jobs
+3. jobindex.dk — Danish jobs
+4. it-jobbank.dk — Danish IT jobs
+...
+```
+
+Save selected boards to preferences:
+```python
+prefs['job_boards'] = ["remoteok.com", "jobindex.dk", ...]
+prefs['remote_preference'] = "remote" | "local" | "both"
+```
+
+Tell user: "You can manage boards anytime with /boards"
+
+### Step 7 — Register cron jobs
 Before finishing, register the scheduled jobs by running each of these commands:
 
 ```
@@ -62,7 +92,7 @@ openclaw cron add --name jobhunter-digest --cron "0 8 * * *" --agent jobhunter -
 If a job already exists you will get an error — that is fine, skip it.
 Tell the user "✓ Cron jobs registered" once done.
 
-### Step 7 — Finish
+### Step 8 — Finish
 Confirm saved. Tell the user:
 - Scraping runs twice daily (morning and evening)
 - They'll get a digest message each morning with top matches
