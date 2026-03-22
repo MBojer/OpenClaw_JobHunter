@@ -24,6 +24,7 @@ REGISTRY_PATH = (
 
 CONNECTOR_MAP = {
     "jobindex":   "scripts.scraping.boards.jobindex.JobindexConnector",
+    "searxng":    "scripts.scraping.boards.searxng.SearxngConnector",
     "indeed":     "scripts.scraping.boards.indeed.IndeedConnector",
     "it_jobbank": "scripts.scraping.boards.it_jobbank.ItJobbankConnector",
 }
@@ -156,7 +157,7 @@ def run(board_filter: str = None, dry_run: bool = False):
         print("\nTriggering scoring...")
         import subprocess
         subprocess.run(
-            [sys.executable, "scripts/local-llm/score_jobs.py"],
+            [sys.executable, "scripts/local_llm/score_jobs.py"],
             check=False
         )
 

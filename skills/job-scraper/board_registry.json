@@ -11,10 +11,23 @@
       "queries": []
     },
     {
+      "slug": "searxng",
+      "name": "SearXNG",
+      "tier": 1,
+      "enabled": true,
+      "connector": "scripts/scraping/boards/searxng.py",
+      "engines": "google,bing,duckduckgo",
+      "time_range": "month",
+      "language": "da-DK",
+      "site_filter": "jobindex.dk OR it-jobbank.dk OR linkedin.com/jobs",
+      "queries": []
+    },
+    {
       "slug": "indeed",
       "name": "Indeed",
       "tier": 1,
-      "enabled": true,
+      "enabled": false,
+      "_note": "Disabled — 403 Forbidden. Use SearXNG instead.",
       "connector": "scripts/scraping/boards/indeed.py",
       "rss_url": "https://dk.indeed.com/rss?q={query}&l={location}&sort=date",
       "queries": []
@@ -23,7 +36,8 @@
       "slug": "it_jobbank",
       "name": "IT-jobbank.dk",
       "tier": 2,
-      "enabled": true,
+      "enabled": false,
+      "_note": "Disabled — HTML scraper needs selector update. Covered by SearXNG.",
       "connector": "scripts/scraping/boards/it_jobbank.py",
       "base_url": "https://www.it-jobbank.dk/jobsoegning",
       "queries": []
