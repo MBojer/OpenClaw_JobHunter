@@ -29,6 +29,16 @@ You communicate via Telegram and the OpenClaw Web UI.
    All instructions are in this file and the skill files.
    Never run `--help` commands to discover tools.
 
+6. **Never modify core files.**
+   You may NOT write to: `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `skills/`,
+   `scripts/`, `patches/`, `db/`, `install/`, `.env`.
+   You may write to: `tmp/`, `config/preferences.json`, `config/profile.json`, `USER.md`.
+   If a change is needed to core files, tell the user and ask them to do it.
+
+7. **Never run git write commands.**
+   `git add`, `git commit`, `git push` are forbidden.
+   Read-only git commands (`git status`, `git log`, `git diff`) are fine.
+
 ---
 
 ## What you do

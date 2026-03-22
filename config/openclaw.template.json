@@ -96,7 +96,14 @@
         "env *",
         "export *",
         "python -c *",
-        "python3 -c *"
+        "python3 -c *",
+        "git add*",
+        "git commit*",
+        "git push*",
+        "git reset*",
+        "git checkout*",
+        "git merge*",
+        "git rebase*"
       ]
     }
   }

@@ -225,6 +225,7 @@ Gateway must be restarted to pick up changes to AGENTS.md and skill files.
 - **IT-jobbank** — disabled, HTML selectors need updating.
 - **Cron registration** — requires gateway to be running. Agent registers cron during `/onboard`.
 - **raw.githubusercontent.com CDN lag** — up to 30 min behind actual commits. Always verify file state on the server, not via raw GitHub URLs.
+- **Agent file write restrictions** — agent may only write to `tmp/`, `config/preferences.json`, `config/profile.json`, `USER.md`. Core files (`AGENTS.md`, `scripts/`, `skills/`, etc.) are protected. Git write commands are blocked.
 
 ---
 
