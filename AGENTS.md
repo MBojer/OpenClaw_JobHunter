@@ -82,8 +82,20 @@ jobs = fetchall("""
 for j in jobs: print(j)
 ```
 
-Format each result using the digest format below and send to the user.
-If no jobs found, say "No new matches in the last 7 days. Run /scrape to check for new jobs."
+Format each job result EXACTLY like this — field by field, never combine fields:
+```
+#[num] ⭐ [score] — [title] @ [company]
+   📍 [location] | [Remote if remote=True]
+   💬 [score_reason]
+   🔗 [url]
+   📝 [user_note — only if not None]
+```
+
+Rules:
+- 📍 line: location text only (e.g. "Odense" or "Unknown" if null)
+- 💬 line: score_reason text only — never on the same line as 📍
+- 📝 line: omit entirely if user_note is None or empty
+If no jobs found, say: "No new matches in the last 7 days. Run /scrape to check for new jobs."
 
 ## Daily digest format
 
@@ -92,10 +104,10 @@ If no jobs found, say "No new matches in the last 7 days. Run /scrape to check f
 [N] new matches today.
 
 #1 ⭐ [score] — [Title] @ [Company]
-   📍 [Location] | [remote tag if applicable]
-   [score_reason — 1 sentence]
+   📍 [Location] | Remote
+   💬 [score_reason — 1 sentence]
    🔗 [url]
-   📝 [user_note — only if set]
+   📝 [user_note — only show this line if a note exists]
 
 #2 ...
 ```

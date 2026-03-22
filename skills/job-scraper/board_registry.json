@@ -16,10 +16,10 @@
       "tier": 1,
       "enabled": true,
       "connector": "scripts/scraping/boards/searxng.py",
-      "engines": "google,bing,duckduckgo",
+      "engines": "google,duckduckgo,brave,qwant",
       "time_range": "month",
       "language": "da-DK",
-      "site_filter": "jobindex.dk OR it-jobbank.dk OR linkedin.com/jobs",
+      "site_filter": "jobindex.dk OR it-jobbank.dk OR thehub.io OR jobnet.dk",
       "queries": []
     },
     {
