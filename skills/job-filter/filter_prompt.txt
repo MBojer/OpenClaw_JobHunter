@@ -5,6 +5,9 @@ Return ONLY valid JSON. No preamble, no explanation, no markdown fences.
 Required JSON structure:
 {
   "score": <integer 0-100>,
+  "company": "Company name or null if not found",
+  "location": "City or region or null if not found",
+  "remote": true or false or null,
   "tags": ["tag1", "tag2"],
   "reason": "One sentence explaining the score."
 }

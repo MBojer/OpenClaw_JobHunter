@@ -128,14 +128,27 @@ def score_jobs(limit: int = None, rescore: bool = False, job_id: str = None):
                 print(f"  ✗ {job['title']} — invalid score value: {parsed['score']!r}")
                 errors += 1
                 continue
-            tags   = parsed.get("tags", [])
-            reason = parsed.get("reason", "")[:300]
+            tags     = parsed.get("tags", [])
+            reason   = parsed.get("reason", "")[:300]
+
+            # Extract company/location if Qwen found them and DB is empty
+            extracted_company  = parsed.get("company") or None
+            extracted_location = parsed.get("location") or None
+            extracted_remote   = parsed.get("remote")
 
             execute("""
                 UPDATE jobs
-                SET score = %s, tags = %s, score_reason = %s, scored_at = %s
+                SET score        = %s,
+                    tags         = %s,
+                    score_reason = %s,
+                    scored_at    = %s,
+                    company      = COALESCE(NULLIF(company, ''), %s),
+                    location     = COALESCE(NULLIF(location, ''), %s),
+                    remote       = COALESCE(remote, %s)
                 WHERE id = %s
-            """, (score, tags, reason, datetime.now(timezone.utc), job_id_str))
+            """, (score, tags, reason, datetime.now(timezone.utc),
+                    extracted_company, extracted_location, extracted_remote,
+                    job_id_str))
 
             print(f"  ✓ {job['title']} @ {job['company']} — {score}/100")
             scored_ids.append(job_id_str)
