@@ -5,7 +5,7 @@ Guide a new user through initial setup of JobHunter. This skill is used once at 
 run, or when the user wants to update their profile.
 
 ## When to use this skill
-- User sends `/start` for the first time
+- User sends `/onboard`
 - User asks to "update my profile" or "redo onboarding"
 - `config/profile.json` does not exist yet
 
@@ -19,7 +19,7 @@ Ask them to paste their LinkedIn profile (the full text from their LinkedIn "Abo
 ### Step 2 — Parse (offload to Qwen, do NOT process inline)
 Once the user pastes their profile:
 1. Save the raw text to a temp file
-2. Call: `python scripts/onboarding/parse_profile.py --input <tempfile>`
+2. Call: `python3 scripts/onboarding/parse_profile.py --input <tempfile>`
 3. This calls Qwen2.5:7b locally. Wait for the result.
 4. The script outputs structured JSON to stdout.
 
@@ -46,7 +46,7 @@ Ask 4 quick questions (one at a time is fine):
 4. Any keywords to always exclude? (e.g. "junior, unpaid")
 
 ### Step 5 — Save
-Call: `python scripts/onboarding/parse_profile.py --save --profile-json '<json>'`
+Call: `python3 scripts/onboarding/parse_profile.py --save --profile-json '<json>'`
 This writes `config/profile.json` and `config/preferences.json`.
 Also inserts/updates the `profile` table in PostgreSQL.
 
@@ -68,6 +68,7 @@ Confirm saved. Tell the user:
 - They'll get a digest message each morning with top matches
 - They can say "apply to job #3" at any time
 - Type `/help` to see all commands
+- Use `/onboard` again any time to update your profile
 
 ## Rules
 - Never store the raw LinkedIn paste beyond the temp file

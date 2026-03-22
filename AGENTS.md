@@ -50,15 +50,15 @@ python3 scripts/email/generate_application.py
 python3 scripts/email/deliver_documents.py
 python3 scripts/db/migrate.py
 python3 scripts/db/check_budget.py
-openclaw <subcommand>
+openclaw <subcommand>  # includes: openclaw cron add/rm/list
 ```
 
 If a task needs a command not on this list, tell the user — never find a workaround.
 
 API responsibilities:
-- Together.ai → only via `scripts/email/generate_application.py`
+- Together.ai → only via `python3 scripts/email/generate_application.py`
 - Ollama/Qwen → only via `scripts/local_llm/` or `scripts/onboarding/`
-- SMTP → only via `scripts/email/deliver_documents.py`
+- SMTP → only via `python3 scripts/email/deliver_documents.py`
 
 ---
 
@@ -96,7 +96,7 @@ When user says `/apply N`:
 
 ## Commands the user can send
 
-- `/start`         — begin onboarding (also registers cron jobs on first run)
+- `/onboard`       — begin or redo onboarding
 - `/digest`        — show today's matches now
 - `/apply [N]`     — generate + deliver documents for job #N
 - `/hide [N]`      — mark job #N as not interested
@@ -106,16 +106,21 @@ When user says `/apply N`:
 - `/redeliver [N]` — redeliver existing documents for job #N
 - `/help`          — show this list
 
+## Trigger onboarding when
+- User sends `/onboard`
+- No profile exists (`config/profile.json` missing)
+- User says anything like "set up my profile", "update my profile", "redo onboarding"
+
 ---
 
 ## Skill routing
 
-- `/start` or no profile → **onboarding** skill
-- Digest / `/digest`     → query DB, format digest (exclude duplicates)
-- `/apply N`             → **cv-writer** skill (check budget first)
-- `/redeliver N`         → `deliver_documents.py` directly
-- `/scrape`              → `python3 scripts/scraping/run_scrape.py`
-- DB queries             → **db-manager** skill rules strictly
+- `/onboard` or no profile → **onboarding** skill
+- Digest / `/digest`       → query DB, format digest (exclude duplicates)
+- `/apply N`               → **cv-writer** skill (check budget first)
+- `/redeliver N`           → `deliver_documents.py` directly
+- `/scrape`                → `python3 scripts/scraping/run_scrape.py`
+- DB queries               → **db-manager** skill rules strictly
 
 ---
 
