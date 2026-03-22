@@ -152,7 +152,9 @@ class SearxngConnector(BaseConnector):
             "engines":  self.engines,
             "language": self.language,
         }
-        if self.time_range:
+        # time_range + site_filter combined causes 0 results from most engines
+        # Only send time_range when there is no site_filter
+        if self.time_range and not self.site_filter:
             params["time_range"] = self.time_range
 
         url = f"{self.base_url}/search?{urllib.parse.urlencode(params)}"
