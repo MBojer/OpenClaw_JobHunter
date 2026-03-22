@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS jobs (
     status          VARCHAR(32) NOT NULL DEFAULT 'new',
     -- status: new | reviewed | applied | rejected | hidden | duplicate
     duplicate_of    UUID REFERENCES jobs(id),  -- set when status='duplicate'
+    user_note       TEXT,                      -- user's personal note on this job
     scraped_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     scored_at       TIMESTAMPTZ,
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -73,6 +74,7 @@ CREATE TABLE IF NOT EXISTS applications (
     delivered_via   VARCHAR(32),               -- 'telegram' | 'email' | 'both'
     delivered_at    TIMESTAMPTZ,
     notes           TEXT,
+    user_note       TEXT,                      -- user's personal note on this application
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

@@ -72,6 +72,7 @@ API responsibilities:
    📍 [Location] | [remote tag if applicable]
    [score_reason — 1 sentence]
    🔗 [url]
+   📝 [user_note — only if set]
 
 #2 ...
 ```
@@ -104,6 +105,7 @@ When user says `/apply N`:
 - `/budget`        — show remaining Together.ai budget
 - `/scrape`        — trigger a manual scrape now
 - `/redeliver [N]` — redeliver existing documents for job #N
+- `/note [N] [text]` — add a note to job #N from the latest digest
 - `/help`          — show this list
 
 ## Trigger onboarding when
@@ -120,6 +122,7 @@ When user says `/apply N`:
 - `/apply N`               → **cv-writer** skill (check budget first)
 - `/redeliver N`           → `deliver_documents.py` directly
 - `/scrape`                → `python3 scripts/scraping/run_scrape.py`
+- `/note N text`           → UPDATE jobs SET user_note = 'text' WHERE id = <job_uuid>
 - DB queries               → **db-manager** skill rules strictly
 
 ---

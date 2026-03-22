@@ -13,7 +13,7 @@ The agent uses this skill to fetch job data for digests and user queries.
 2. **Allowed columns for agent queries:**
    ```
    jobs: id, url, title, company, location, remote, salary_raw,
-         tags, score, score_reason, status, scraped_at
+         tags, score, score_reason, status, scraped_at, user_note
    ```
 
 3. **Never expose raw profile data** from the `profile` table.
@@ -44,6 +44,16 @@ UPDATE jobs SET status = 'applied', updated_at = NOW() WHERE id = $1;
 ### Mark a job as hidden (user not interested)
 ```sql
 UPDATE jobs SET status = 'hidden', updated_at = NOW() WHERE id = $1;
+```
+
+### Add or update a note on a job
+```sql
+UPDATE jobs SET user_note = $1, updated_at = NOW() WHERE id = $2;
+```
+
+### Add or update a note on an application
+```sql
+UPDATE applications SET user_note = $1, updated_at = NOW() WHERE id = $2;
 ```
 
 ### Check budget remaining
