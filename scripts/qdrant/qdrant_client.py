@@ -56,7 +56,7 @@ def _qdrant_request(method: str, path: str, body: dict = None) -> dict:
 def get_embedding(text: str) -> list[float]:
     """Get embedding vector from Ollama nomic-embed-text."""
     url = f"{OLLAMA_BASE_URL}/api/embeddings"
-    payload = json.dumps({"model": EMBED_MODEL, "prompt": text[:8000]}).encode()
+    payload = json.dumps({"model": EMBED_MODEL, "prompt": text[:2000]}).encode()
     req = urllib.request.Request(
         url, data=payload,
         headers={"Content-Type": "application/json"},
@@ -66,6 +66,9 @@ def get_embedding(text: str) -> list[float]:
         with urllib.request.urlopen(req, timeout=30) as resp:
             data = json.loads(resp.read())
             return data["embedding"]
+    except urllib.error.HTTPError as e:
+        body = e.read().decode(errors="replace")
+        raise QdrantError(f"Embedding failed: HTTP {e.code}: {body}") from e
     except Exception as e:
         raise QdrantError(f"Embedding failed: {e}") from e
 
