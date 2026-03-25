@@ -20,12 +20,14 @@ class OllamaError(Exception):
 
 
 def generate(prompt: str, model: str = None, temperature: float = 0.1,
-             json_mode: bool = False) -> str:
+             json_mode: bool = False, num_predict: int = 512) -> str:
     """
     Send a prompt to Ollama and return the response text.
     Uses low temperature by default — we want consistent structured output.
     Set json_mode=True to force Ollama to return valid JSON (recommended for
     scoring and parsing prompts).
+    num_predict: max tokens to generate. 512 is fine for scoring; use 2048+
+    for longer structured outputs like profile parsing.
     """
     model = model or OLLAMA_MODEL
     url   = f"{OLLAMA_BASE_URL}/api/generate"
@@ -36,7 +38,7 @@ def generate(prompt: str, model: str = None, temperature: float = 0.1,
         "stream": False,
         "options": {
             "temperature": temperature,
-            "num_predict": 512,   # Scoring responses are short — cap tokens
+            "num_predict": num_predict,
         },
     }
 

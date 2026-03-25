@@ -29,7 +29,7 @@ def parse_raw(raw_text: str) -> dict:
         raise RuntimeError("Ollama is not reachable. Is it running?")
 
     prompt   = PROMPT_TEMPLATE + "\n" + raw_text
-    response = generate(prompt, temperature=0.05)
+    response = generate(prompt, temperature=0.05, json_mode=True, num_predict=2048)
 
     # Strip markdown fences if present
     response = response.strip()
