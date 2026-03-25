@@ -39,11 +39,17 @@ Location: [location]
 Ask: "Does this look right? Reply YES to save, or tell me what to correct."
 
 ### Step 4 — Preferences
-Ask 4 quick questions (one at a time is fine):
-1. What job titles are you looking for? (e.g. "Backend Developer, Software Engineer")
+Ask these questions one at a time:
+1. What job titles are you looking for? (e.g. "IT Administrator, Network Engineer")
 2. What's your minimum monthly salary? (DKK or EUR)
-3. Preferred location(s) and remote preference?
+3. Remote, local, or both?
 4. Any keywords to always exclude? (e.g. "junior, unpaid")
+5. What's your full name? (for CV and cover letter)
+6. What's your LinkedIn profile URL?
+7. What's your home address or postcode? (for commute calculation and cover letter)
+8. How do you commute? (Car / Bicycle / E-bike / Walk — pick one or more)
+9. What's the maximum commute time you'd accept for an office job? (minutes)
+10. What time do you want to arrive at work? (e.g. 08:30)
 
 ### Step 5 — Save
 Call: `python3 scripts/onboarding/parse_profile.py --save --profile-json '<json>'`

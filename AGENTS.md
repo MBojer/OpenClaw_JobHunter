@@ -86,7 +86,7 @@ import sys; sys.path.insert(0, '.')
 from scripts.db.client import fetchall
 jobs = fetchall("""
     SELECT title, company, location, remote, score, score_reason,
-           tags, url, user_note,
+           tags, url, user_note, commute_minutes, commute_mode,
            ROW_NUMBER() OVER (ORDER BY score DESC NULLS LAST) AS num
     FROM jobs
     WHERE status = 'new'
@@ -100,7 +100,7 @@ for j in jobs: print(j)
 Format each job result EXACTLY like this — field by field, never combine fields:
 ```
 #[num] ⭐ [score] — [title] @ [company]
-   📍 [location] | [Remote if remote=True]
+   📍 [location] | [Remote if remote=True] | [commute_minutes min 🚗/🚲 if not null]
    💬 [score_reason]
    🔗 [url]
    📝 [user_note — only if not None]

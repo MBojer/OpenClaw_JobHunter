@@ -14,6 +14,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from scripts.db.client import fetchall, fetchone, execute
 from scripts.local_llm.ollama_client import generate, is_available, OllamaError
+from scripts.commute.ors_client import (
+    get_best_commute, get_coordinates, is_available as ors_available, ORSError
+)
 
 SCORE_PROMPT_TEMPLATE = (
     Path(__file__).parent.parent.parent
@@ -78,6 +81,29 @@ def score_jobs(limit: int = None, rescore: bool = False, job_id: str = None):
         sys.exit(1)
 
     profile_summary, hard_requirements = load_profile_summary()
+
+    # Load commute preferences
+    _prefs_row = fetchone("SELECT preferences FROM profile WHERE id = 1")
+    _prefs     = _prefs_row["preferences"] if _prefs_row else {}
+    _commute   = _prefs.get("commute", {})
+    _home_addr = _commute.get("home_address")
+    _home_coords = None
+    _max_min   = _commute.get("max_minutes", 45)
+    _modes     = _commute.get("modes", ["driving-car"])
+    _ors_on    = ors_available() and bool(_home_addr)
+    if _ors_on:
+        try:
+            stored = _commute.get("home_coords")
+            if stored:
+                _home_coords = tuple(stored)
+            else:
+                _home_coords = get_coordinates(_home_addr)
+            if not _home_coords:
+                print(f"  ⚠ Could not geocode home address: {_home_addr}")
+                _ors_on = False
+        except ORSError as e:
+            print(f"  ⚠ ORS unavailable: {e}")
+            _ors_on = False
 
     where = "WHERE score IS NULL" if not rescore else "WHERE TRUE"
     if job_id:
@@ -150,6 +176,32 @@ def score_jobs(limit: int = None, rescore: bool = False, job_id: str = None):
             """, (score, tags, reason, datetime.now(timezone.utc),
                   extracted_company, extracted_location, extracted_remote,
                   job_id_str))
+
+            # Commute calculation — skip for remote jobs or missing location
+            commute_minutes = None
+            commute_mode    = None
+            job_location = extracted_location or job.get("location") or ""
+            is_remote    = extracted_remote or job.get("remote") or False
+
+            if _ors_on and job_location and not is_remote:
+                try:
+                    commute_minutes, commute_mode = get_best_commute(
+                        _home_coords, job_location, _modes
+                    )
+                    if commute_minutes is not None:
+                        # Penalise score if commute exceeds max
+                        if commute_minutes > _max_min:
+                            penalty = min(20, (commute_minutes - _max_min) // 5 * 5)
+                            score   = max(0, score - penalty)
+                        execute("""
+                            UPDATE jobs
+                            SET commute_minutes = %s, commute_mode = %s
+                            WHERE id = %s
+                        """, (commute_minutes, commute_mode, job_id_str))
+                        mode_label = commute_mode.replace('driving-car','🚗').replace('cycling-electric','⚡🚲').replace('cycling-regular','🚲').replace('foot-walking','🚶')
+                        print(f"     🗺 {commute_minutes} min {mode_label}")
+                except ORSError as e:
+                    print(f"     ⚠ Commute lookup failed: {e}")
 
             print(f"  ✓ {job['title']} @ {job['company']} — {score}/100")
             scored_ids.append(job_id_str)

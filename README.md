@@ -118,6 +118,21 @@ See [`docs/adding-a-board.md`](docs/adding-a-board.md).
 
 ---
 
+## Roadmap
+
+### v2.1
+- **Public transport commute** — Rejseplanen API (Denmark) for bus/train routing
+- **Docker Compose installer** — one-command setup for SearXNG + OpenRouteService
+- **docx/pdf documents** — proper Word and PDF CV/cover letter generation
+- **Reply monitoring** — track application status from inbox
+
+### Self-hosted stack (manual setup until Docker Compose installer)
+- **SearXNG** — https://github.com/searxng/searxng-docker
+- **OpenRouteService** — https://github.com/GIScience/openrouteservice
+- **Ollama** — https://ollama.com
+
+---
+
 ## License
 
 MIT

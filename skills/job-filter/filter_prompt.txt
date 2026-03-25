@@ -27,6 +27,10 @@ Hard requirements (score max 20 if any fail):
 CANDIDATE PROFILE:
 {profile_summary}
 
+COMMUTE NOTE: Commute time is calculated separately after scoring.
+If location is clearly remote or work-from-home, set remote=true.
+If location is a city/address, extract it precisely for geocoding.
+
 JOB POSTING:
 Title: {title}
 Company: {company}

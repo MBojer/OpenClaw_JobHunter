@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS jobs (
     -- status: new | reviewed | applied | rejected | hidden | duplicate
     duplicate_of    UUID REFERENCES jobs(id),  -- set when status='duplicate'
     user_note       TEXT,                      -- user's personal note on this job
+    commute_minutes INTEGER,                   -- fastest commute in minutes (ORS)
+    commute_mode    VARCHAR(32),               -- e.g. 'driving-car', 'cycling-electric'
     scraped_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     scored_at       TIMESTAMPTZ,
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()

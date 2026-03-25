@@ -20,6 +20,13 @@
   "min_score": 60,
   "digest_limit": 10,
   "remote_preference": "both",
+  "commute": {
+    "home_address": "5000 Odense C, Denmark",
+    "home_coords": null,
+    "max_minutes": 45,
+    "modes": ["driving-car"],
+    "target_arrival": "08:30"
+  },
   "job_boards": [
     "remoteok.com",
     "weworkremotely.com",

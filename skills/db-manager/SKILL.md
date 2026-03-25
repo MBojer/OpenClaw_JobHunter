@@ -13,7 +13,8 @@ The agent uses this skill to fetch job data for digests and user queries.
 2. **Allowed columns for agent queries:**
    ```
    jobs: id, url, title, company, location, remote, salary_raw,
-         tags, score, score_reason, status, scraped_at, user_note
+         tags, score, score_reason, status, scraped_at, user_note,
+         commute_minutes, commute_mode
    ```
 
 3. **Never expose raw profile data** from the `profile` table.
