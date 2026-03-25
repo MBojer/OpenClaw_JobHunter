@@ -16,6 +16,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from scripts.db.client import fetchone, fetchall, execute
 from scripts.scraping.base_connector import JobListing
+from scripts.qdrant.qdrant_client import (
+    upsert_job, find_similar, is_available as qdrant_available, QdrantError
+)
 
 REGISTRY_PATH = (
     Path(__file__).parent.parent.parent
@@ -62,10 +65,23 @@ def url_exists(url: str) -> bool:
     return row is not None
 
 
-def save_job(listing: JobListing, board_id: int) -> bool:
+def save_job(listing: JobListing, board_id: int,
+             qdrant_on: bool = False) -> bool:
     """Insert job. Returns True if new, False if duplicate."""
     if url_exists(listing.url):
         return False
+
+    # Semantic dedup — check if a similar job already exists
+    if qdrant_on and listing.description_raw:
+        try:
+            similar = find_similar(listing.description_raw)
+            if similar:
+                best = similar[0]
+                print(f"  [Qdrant] Semantic duplicate ({best['score']:.2f}): "
+                      f"{listing.title[:50]}")
+                return False
+        except QdrantError as e:
+            print(f"  [Qdrant] Dedup check failed: {e}")
     execute("""
         INSERT INTO jobs
             (board_id, url, title, company, location, remote,
@@ -105,6 +121,11 @@ def run(board_filter: str = None, dry_run: bool = False):
     total_new   = 0
     total_found = 0
     run_status  = "ok"
+    _qdrant_on  = qdrant_available()
+    if _qdrant_on:
+        print("  [Qdrant] Semantic dedup active")
+    else:
+        print("  [Qdrant] Not available — using URL dedup only")
 
     for board in boards:
         slug = board["slug"]
@@ -138,8 +159,23 @@ def run(board_filter: str = None, dry_run: bool = False):
                     print(f"  [DRY RUN] {listing.title} @ {listing.company} — {listing.url}")
                     new_count += 1
                 else:
-                    if save_job(listing, board_id):
+                    saved = save_job(listing, board_id, qdrant_on=_qdrant_on)
+                    if saved:
                         new_count += 1
+                        # Upsert embedding to Qdrant after successful save
+                        if _qdrant_on and listing.description_raw:
+                            try:
+                                job_row = fetchone(
+                                    "SELECT id FROM jobs WHERE url = %s",
+                                    (listing.url,)
+                                )
+                                if job_row:
+                                    upsert_job(
+                                        str(job_row["id"]),
+                                        listing.description_raw
+                                    )
+                            except QdrantError as e:
+                                print(f"  [Qdrant] Upsert failed: {e}")
 
             total_new += new_count
             print(f"  → {len(listings)} fetched, {new_count} new")

@@ -225,6 +225,7 @@ Gateway must be restarted to pick up changes to AGENTS.md and skill files.
 - **IT-jobbank** — disabled, HTML selectors need updating.
 - **Cron registration** — requires gateway to be running. Agent registers cron during `/onboard`.
 - **raw.githubusercontent.com CDN lag** — up to 30 min behind actual commits. Always verify file state on the server, not via raw GitHub URLs.
+- **Qdrant semantic dedup** — `scripts/qdrant/qdrant_client.py`. Embeds job descriptions with `nomic-embed-text` via Ollama, stores in Qdrant. Checked at scrape time before saving — catches cross-board duplicates. Threshold 0.92 cosine similarity. Falls back gracefully if Qdrant unavailable.
 - **Commute scoring** — ORS client in `scripts/commute/ors_client.py`. Called from `score_jobs.py` after Qwen scoring. 100km ORS limit means jobs beyond that get `commute_minutes=None`. Score penalised 5pts per 5min over `max_minutes`.
 - **Agent file write restrictions** — agent may only write to `tmp/`, `config/preferences.json`, `config/profile.json`, `USER.md`. Core files (`AGENTS.md`, `scripts/`, `skills/`, etc.) are protected. Git write commands are blocked.
 

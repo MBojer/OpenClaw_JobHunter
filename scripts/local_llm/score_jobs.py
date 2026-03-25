@@ -224,6 +224,11 @@ def score_jobs(limit: int = None, rescore: bool = False, job_id: str = None):
 
 
 def dedup_jobs(scored_ids: list[str]):
+    """
+    Qwen-based dedup: same-company title comparison.
+    Cross-board dedup is handled by Qdrant at scrape time (see run_scrape.py).
+    This pass catches remaining same-company duplicates Qdrant may miss.
+    """  # noqa: D400
     if not scored_ids:
         return
 
