@@ -13,8 +13,10 @@ down to catch more duplicates.
 """
 import os
 import json
+import re
 import urllib.request
 import urllib.error
+from html.parser import HTMLParser
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -29,6 +31,22 @@ SIMILARITY_THRESHOLD = 0.92
 
 class QdrantError(Exception):
     pass
+
+
+class _HTMLStripper(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self._parts = []
+
+    def handle_data(self, data):
+        self._parts.append(data)
+
+
+def _strip_html(text: str) -> str:
+    """Strip HTML tags and collapse whitespace."""
+    s = _HTMLStripper()
+    s.feed(text)
+    return re.sub(r'\s+', ' ', ' '.join(s._parts)).strip()
 
 
 def _qdrant_request(method: str, path: str, body: dict = None) -> dict:
@@ -56,7 +74,7 @@ def _qdrant_request(method: str, path: str, body: dict = None) -> dict:
 def get_embedding(text: str) -> list[float]:
     """Get embedding vector from Ollama nomic-embed-text."""
     url = f"{OLLAMA_BASE_URL}/api/embeddings"
-    payload = json.dumps({"model": EMBED_MODEL, "prompt": text[:2000]}).encode()
+    payload = json.dumps({"model": EMBED_MODEL, "prompt": _strip_html(text)[:2000]}).encode()
     req = urllib.request.Request(
         url, data=payload,
         headers={"Content-Type": "application/json"},
