@@ -22,7 +22,7 @@ load_dotenv()
 QDRANT_URL       = os.environ.get("QDRANT_URL", "").rstrip("/")
 QDRANT_API_KEY   = os.environ.get("QDRANT_API_KEY", "")   # optional for local
 OLLAMA_BASE_URL  = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
-EMBED_MODEL      = os.environ.get("EMBED_MODEL", "nomic-embed-text")
+EMBED_MODEL      = os.environ.get("EMBED_MODEL", "zylonai/multilingual-e5-large:latest")
 COLLECTION_NAME  = "jobs"
 SIMILARITY_THRESHOLD = 0.92
 
@@ -70,7 +70,7 @@ def get_embedding(text: str) -> list[float]:
         raise QdrantError(f"Embedding failed: {e}") from e
 
 
-def ensure_collection(vector_size: int = 768):
+def ensure_collection(vector_size: int = 1024):
     """Create jobs collection if it doesn't exist."""
     try:
         _qdrant_request("GET", f"/collections/{COLLECTION_NAME}")
