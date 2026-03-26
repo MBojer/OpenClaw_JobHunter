@@ -95,7 +95,8 @@ def import_cv():
 
     try:
         profile = parse_raw(raw_text)
-        return jsonify({"profile": profile})
+        suggested_titles = profile.pop("suggested_job_titles", [])
+        return jsonify({"profile": profile, "suggested_titles": suggested_titles})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

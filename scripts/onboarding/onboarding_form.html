@@ -415,6 +415,8 @@ async function doImportFile() {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     populateFromImport(data.profile);
+    if (data.suggested_titles && data.suggested_titles.length)
+      setTags('jobtitles', data.suggested_titles);
     setImportResult('ok', '✓ Profile extracted — review the fields below and adjust if needed.');
   } catch (e) {
     setImportResult('err', '✗ ' + e.message);
@@ -440,6 +442,8 @@ async function doImportPaste() {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     populateFromImport(data.profile);
+    if (data.suggested_titles && data.suggested_titles.length)
+      setTags('jobtitles', data.suggested_titles);
     setImportResult('ok', '✓ Profile extracted — review the fields below and adjust if needed.');
   } catch (e) {
     setImportResult('err', '✗ ' + e.message);

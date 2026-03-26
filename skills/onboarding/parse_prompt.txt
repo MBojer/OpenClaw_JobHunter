@@ -36,7 +36,8 @@ Required JSON structure:
     "linkedin": "string or null",
     "github": "string or null",
     "website": "string or null"
-  }
+  },
+  "suggested_job_titles": ["3-5 job titles this person should search for on a job board"]
 }
 
 Rules:
@@ -45,6 +46,7 @@ Rules:
 - Dates: use the most specific format available
 - Skills: only include clearly mentioned technologies
 - Experience: most recent first
+- suggested_job_titles: infer 3-5 relevant job titles to search for based on seniority and experience — not necessarily exact past titles; think "what would this person type into a job board?"
 - Output ONLY the JSON object — nothing else
 
 RAW TEXT:
