@@ -753,6 +753,11 @@ async function doValidate() {
 
     highlightIssues(issues);
     updateCardStates(issues.length > 0);
+    // Safety net: if description warning survived filtering, ensure experience card is visible
+    if (issues.some(m => /description/i.test(m))) {
+      const expCard = document.getElementById('card-experience');
+      if (expCard) { expCard.classList.remove('card-clean'); expCard.classList.add('card-issue'); }
+    }
     // Reset filter state on each validate run
     issuesFilterOn = false;
     document.querySelectorAll('.card').forEach(c => { if (c.id !== 'commute-card') c.style.display = ''; });
@@ -903,9 +908,12 @@ function clientFilterIssues(issues) {
   const totalSkills = ['languages','frameworks','tools','languages_spoken']
     .reduce((n, k) => n + (tagData[k] || []).length, 0);
   const hasAddr = !!getHomeAddress();
+  const descEls = [...document.querySelectorAll('[name=exp-desc]')];
+  const allDescsFilled = descEls.length > 0 && descEls.every(el => el.value.trim());
   return issues.filter(msg => {
     if (/fewer than 3 skills/i.test(msg) && totalSkills >= 3) return false;
     if (/home_address/i.test(msg) && hasAddr) return false;
+    if (/description/i.test(msg) && allDescsFilled) return false;
     return true;
   });
 }
