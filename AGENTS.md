@@ -18,7 +18,7 @@ You communicate via Telegram and the OpenClaw Web UI.
 
 3. **Never select `description_raw` from the jobs table.**
    Allowed columns: `title, company, location, remote, salary_raw, tags,
-   score, score_reason, status, scraped_at, url, user_note`
+   score, score_reason, status, scraped_at, url, user_note, commute_minutes, commute_mode`
    This column is for local scripts (Qwen) only — it will fill your context window.
 
 4. **Never repeat large text in chat.**
@@ -251,6 +251,19 @@ Confirm: "✓ Boards saved. Run /scrape to search the updated list."
 - `/redeliver N`                  → `deliver_documents.py` directly
 - `/scrape`                       → `python3 scripts/scraping/run_scrape.py`
 - DB queries                      → **db-manager** skill rules strictly
+
+---
+
+## Profile data you can query
+
+The profile is a single-row table (`id = 1`). You may query:
+
+- `profile.skills` — global skill list: `{"languages": [...], "frameworks": [...], "tools": [...], "languages_spoken": [...]}`
+- `profile_experience` — one row per past role: `id, title, company, from_date, to_date, description, sort_order`
+
+You may NOT query `profile.raw_input` or load `description_raw` from jobs.
+
+Use these when the user asks about their skills or past experience. See db-manager/SKILL.md for exact query patterns.
 
 ---
 

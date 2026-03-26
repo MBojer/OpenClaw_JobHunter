@@ -18,7 +18,8 @@ The agent uses this skill to fetch job data for digests and user queries.
    ```
 
 3. **Never expose raw profile data** from the `profile` table.
-   The `raw_input` column is off-limits. Use `structured` and `preferences` only.
+   The `raw_input` column is off-limits.
+   Allowed profile columns: `structured` (minus experience/skills — use dedicated tables), `preferences`, `skills`.
 
 ## Standard queries
 
@@ -64,6 +65,36 @@ SELECT
    FROM profile WHERE id = 1) -
   COALESCE((SELECT SUM(estimated_usd) FROM spend_log WHERE provider = 'together'), 0)
   AS remaining_usd;
+```
+
+### Skills overview
+```sql
+SELECT skills FROM profile WHERE id = 1;
+```
+
+### List experience (all roles)
+```sql
+SELECT id, title, company, from_date, to_date, description
+FROM profile_experience
+ORDER BY sort_order;
+```
+
+### Add an experience entry
+```sql
+INSERT INTO profile_experience (title, company, from_date, to_date, description, sort_order)
+VALUES ($1, $2, $3, $4, $5, $6);
+```
+
+### Edit an experience entry
+```sql
+UPDATE profile_experience
+SET title=$1, company=$2, from_date=$3, to_date=$4, description=$5
+WHERE id = $6;
+```
+
+### Remove an experience entry
+```sql
+DELETE FROM profile_experience WHERE id = $1;
 ```
 
 ## How to run queries

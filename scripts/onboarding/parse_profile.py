@@ -61,6 +61,28 @@ def save_profile(profile: dict, preferences: dict):
             updated_at   = NOW()
     """, (json.dumps(profile), json.dumps(preferences)))
 
+    # Write dedicated skills column
+    execute(
+        "UPDATE profile SET skills = %s WHERE id = 1",
+        (json.dumps(profile.get("skills", {})),)
+    )
+
+    # Replace experience rows (full replace on every save)
+    execute("DELETE FROM profile_experience")
+    for i, role in enumerate(profile.get("experience", [])):
+        execute("""
+            INSERT INTO profile_experience
+                (title, company, from_date, to_date, description, sort_order)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (
+            role.get("title", ""),
+            role.get("company", ""),
+            role.get("from"),
+            role.get("to"),
+            role.get("description"),
+            i,
+        ))
+
     print("Profile saved to config/profile.json and database.")
 
 

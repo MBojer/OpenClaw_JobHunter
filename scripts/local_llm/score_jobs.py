@@ -30,17 +30,18 @@ DEDUP_PROMPT_TEMPLATE = (
 
 
 def load_profile_summary() -> tuple[str, str]:
-    row = fetchone("SELECT structured, preferences FROM profile WHERE id = 1")
+    row = fetchone("SELECT structured, preferences, skills FROM profile WHERE id = 1")
     if not row:
         return "No profile set up yet.", "None"
 
-    p    = row["structured"]
-    pref = row["preferences"]
+    p      = row["structured"]
+    pref   = row["preferences"]
+    skills = row["skills"] or {}
 
     skills_all = (
-        p.get("skills", {}).get("languages", []) +
-        p.get("skills", {}).get("frameworks", []) +
-        p.get("skills", {}).get("tools", [])
+        skills.get("languages", []) +
+        skills.get("frameworks", []) +
+        skills.get("tools", [])
     )
     summary = (
         f"Title: {p.get('current_title', 'Unknown')}\n"
