@@ -26,8 +26,7 @@ SUPPORTED_MODES = {
     "foot-walking",
 }
 
-# ORS 100km limit — jobs beyond this are flagged as unknown commute
-MAX_DISTANCE_M = 95000
+NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 
 
 class ORSError(Exception):
@@ -36,28 +35,21 @@ class ORSError(Exception):
 
 def get_coordinates(address: str) -> tuple[float, float] | None:
     """
-    Geocode an address using ORS geocoding endpoint.
+    Geocode an address using Nominatim (OpenStreetMap).
     Returns (lon, lat) or None if not found.
     """
-    if not ORS_BASE_URL:
-        raise ORSError("ORS_BASE_URL not set in .env")
-
-    params = urllib.parse.urlencode({"text": address, "size": 1})
-    url = f"{ORS_BASE_URL}/ors/v2/geocode/search?{params}"
+    params = urllib.parse.urlencode({"q": address, "format": "json", "limit": 1})
+    url = f"{NOMINATIM_URL}?{params}"
 
     try:
-        req = urllib.request.Request(
-            url, headers={"Accept": "application/json"}
-        )
+        req = urllib.request.Request(url, headers={"User-Agent": "JobHunter/2.0"})
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = json.loads(resp.read())
 
-        features = data.get("features", [])
-        if not features:
+        if not data:
             return None
 
-        coords = features[0]["geometry"]["coordinates"]
-        return (coords[0], coords[1])  # (lon, lat)
+        return (float(data[0]["lon"]), float(data[0]["lat"]))
 
     except Exception as e:
         raise ORSError(f"Geocoding failed for '{address}': {e}") from e
@@ -101,7 +93,7 @@ def get_commute_minutes(
 
     try:
         req = urllib.request.Request(
-            url, headers={"Accept": "application/json"}
+            url, headers={"Accept": "application/geo+json"}
         )
         with urllib.request.urlopen(req, timeout=15) as resp:
             data = json.loads(resp.read())
