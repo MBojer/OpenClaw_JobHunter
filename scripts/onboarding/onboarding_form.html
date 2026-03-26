@@ -69,6 +69,14 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f4f4f8;color:#1a
 #import-result.ok{background:#f0fdf4;border:1px solid #86efac;color:#15803d}
 #import-result.err{background:#fff1f2;border:1px solid #fca5a5;color:#991b1b}
 
+/* Commute card — locked/unlocked states */
+#commute-card{display:none}
+.commute-preview{background:#f8f7ff;border:1px solid #e0dcff;border-radius:6px;padding:.65rem .9rem;font-size:.875rem;color:#4f46e5;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.commute-preview span{flex:1}
+.override-toggle{display:flex;align-items:center;gap:.4rem;font-size:.82rem;font-weight:400;color:#666;cursor:pointer;margin-bottom:.75rem}
+.override-toggle input{width:auto;cursor:pointer}
+#commute-override-field{display:none;margin-bottom:1rem}
+
 /* Status bar */
 #status-bar{background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;padding:.65rem 1rem;font-size:.85rem;border-radius:8px;margin-bottom:1.25rem;display:none}
 
@@ -100,6 +108,9 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f4f4f8;color:#1a
 /* Spinner */
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* Divider inside card */
+.card-divider{border:none;border-top:1px solid #f0f0f6;margin:1.25rem 0}
 </style>
 </head>
 <body>
@@ -162,14 +173,21 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f4f4f8;color:#1a
       <label>Professional Summary</label>
       <textarea id="summary" placeholder="Brief description of who you are, what you do, and what you're looking for..."></textarea>
     </div>
+
+    <hr class="card-divider">
+
+    <div class="field">
+      <label>Street Address</label>
+      <input type="text" id="street_address" placeholder="e.g. Vester Skivumvej 15" oninput="updateCommutePreview()">
+    </div>
     <div class="row">
       <div class="field">
         <label>City <span style="color:#e53e3e">*</span></label>
-        <input type="text" id="city" placeholder="e.g. Odense">
+        <input type="text" id="city" placeholder="e.g. Nibe" oninput="updateCommutePreview()">
       </div>
       <div class="field">
         <label>Country <span style="color:#e53e3e">*</span></label>
-        <input type="text" id="country" placeholder="e.g. Denmark">
+        <input type="text" id="country" placeholder="e.g. Denmark" oninput="updateCommutePreview()">
       </div>
       <div class="field" style="flex:0 0 auto;display:flex;align-items:flex-end;padding-bottom:.1rem">
         <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-weight:400;font-size:.9rem;color:#333">
@@ -177,16 +195,115 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f4f4f8;color:#1a
         </label>
       </div>
     </div>
+
+    <hr class="card-divider">
+
+    <div class="field">
+      <label>Remote Preference <span style="color:#e53e3e">*</span></label>
+      <div class="radio-group">
+        <label><input type="radio" name="remote" value="remote" onchange="updateCommuteVisibility()"> Remote only</label>
+        <label><input type="radio" name="remote" value="hybrid" onchange="updateCommuteVisibility()"> Hybrid</label>
+        <label><input type="radio" name="remote" value="onsite" onchange="updateCommuteVisibility()"> On-site only</label>
+        <label><input type="radio" name="remote" value="any" checked onchange="updateCommuteVisibility()"> Any</label>
+      </div>
+    </div>
   </div>
 
-  <!-- 2. Experience -->
+  <!-- 2. Commute (shown when not remote-only) -->
+  <div class="card" id="commute-card">
+    <h2>🗺 Commute</h2>
+
+    <div class="commute-preview" id="commute-preview">
+      <span>📍 <span id="commute-preview-text">Enter your address above to auto-fill</span></span>
+    </div>
+
+    <label class="override-toggle">
+      <input type="checkbox" id="commute-override-check" onchange="toggleCommuteOverride()">
+      Use a different address for commute calculation
+    </label>
+
+    <div id="commute-override-field" class="field">
+      <label>Commute origin address</label>
+      <input type="text" id="home_address_override" placeholder="e.g. Central Station, Copenhagen, Denmark">
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Max Commute (minutes) <span style="color:#e53e3e">*</span></label>
+        <input type="number" id="max_commute" value="60" min="0">
+      </div>
+      <div class="field">
+        <label>Commute Mode <span style="color:#e53e3e">*</span></label>
+        <select id="commute_mode">
+          <option value="driving-car">Car</option>
+          <option value="cycling-regular">Bicycle</option>
+          <option value="foot-walking">Walking</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Job Preferences -->
   <div class="card">
-    <h2>💼 Work Experience</h2>
-    <div id="exp-list"></div>
-    <button class="add-row-btn" onclick="addExp()">+ Add Experience</button>
+    <h2>⚙️ Job Preferences</h2>
+
+    <div class="field">
+      <label>Job Titles to Match</label>
+      <div class="tag-wrap" id="tw-jobtitles" onclick="focusTagInput(this)">
+        <input type="text" placeholder="Backend Developer… Enter to add" data-key="jobtitles" onkeydown="tagKey(event)">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Min Salary (DKK/month)</label>
+        <input type="number" id="min_salary" placeholder="45000" min="0" step="1000">
+      </div>
+      <div class="field">
+        <label>Min Match Score (0–100)</label>
+        <input type="number" id="min_score" value="60" min="0" max="100">
+      </div>
+      <div class="field">
+        <label>Max Jobs per Digest</label>
+        <input type="number" id="digest_limit" value="10" min="1" max="50">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Keywords to Exclude</label>
+      <div class="tag-wrap" id="tw-excluded" onclick="focusTagInput(this)">
+        <input type="text" placeholder="unpaid, internship… Enter to add" data-key="excluded" onkeydown="tagKey(event)">
+      </div>
+    </div>
   </div>
 
-  <!-- 3. Skills -->
+  <!-- 4. Links -->
+  <div class="card">
+    <h2>🔗 Links</h2>
+    <div class="row">
+      <div class="field">
+        <label>LinkedIn</label>
+        <input type="url" id="linkedin" placeholder="https://linkedin.com/in/yourname">
+      </div>
+      <div class="field">
+        <label>GitHub</label>
+        <input type="url" id="github" placeholder="https://github.com/yourname">
+      </div>
+      <div class="field">
+        <label>Website</label>
+        <input type="url" id="website" placeholder="https://yoursite.com">
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Education -->
+  <div class="card">
+    <h2>🎓 Education</h2>
+    <div id="edu-list"></div>
+    <button class="add-row-btn" onclick="addEdu()">+ Add Education</button>
+  </div>
+
+  <!-- 6. Skills -->
   <div class="card">
     <h2>🛠 Skills</h2>
     <div class="row">
@@ -219,95 +336,11 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f4f4f8;color:#1a
     </div>
   </div>
 
-  <!-- 4. Education -->
+  <!-- 7. Work Experience (last — most effort) -->
   <div class="card">
-    <h2>🎓 Education</h2>
-    <div id="edu-list"></div>
-    <button class="add-row-btn" onclick="addEdu()">+ Add Education</button>
-  </div>
-
-  <!-- 5. Links -->
-  <div class="card">
-    <h2>🔗 Links</h2>
-    <div class="row">
-      <div class="field">
-        <label>LinkedIn</label>
-        <input type="url" id="linkedin" placeholder="https://linkedin.com/in/yourname">
-      </div>
-      <div class="field">
-        <label>GitHub</label>
-        <input type="url" id="github" placeholder="https://github.com/yourname">
-      </div>
-      <div class="field">
-        <label>Website</label>
-        <input type="url" id="website" placeholder="https://yoursite.com">
-      </div>
-    </div>
-  </div>
-
-  <!-- 6. Preferences -->
-  <div class="card">
-    <h2>⚙️ Job Preferences</h2>
-
-    <div class="field">
-      <label>Job Titles to Match</label>
-      <div class="tag-wrap" id="tw-jobtitles" onclick="focusTagInput(this)">
-        <input type="text" placeholder="Backend Developer… Enter to add" data-key="jobtitles" onkeydown="tagKey(event)">
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="field">
-        <label>Min Salary (DKK/month)</label>
-        <input type="number" id="min_salary" placeholder="45000" min="0" step="1000">
-      </div>
-      <div class="field">
-        <label>Min Match Score (0–100)</label>
-        <input type="number" id="min_score" value="60" min="0" max="100">
-      </div>
-      <div class="field">
-        <label>Max Jobs per Digest</label>
-        <input type="number" id="digest_limit" value="10" min="1" max="50">
-      </div>
-    </div>
-
-    <div class="field">
-      <label>Remote Preference</label>
-      <div class="radio-group">
-        <label><input type="radio" name="remote" value="remote"> Remote only</label>
-        <label><input type="radio" name="remote" value="hybrid"> Hybrid</label>
-        <label><input type="radio" name="remote" value="onsite"> On-site only</label>
-        <label><input type="radio" name="remote" value="any" checked> Any</label>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>Keywords to Exclude</label>
-      <div class="tag-wrap" id="tw-excluded" onclick="focusTagInput(this)">
-        <input type="text" placeholder="unpaid, internship… Enter to add" data-key="excluded" onkeydown="tagKey(event)">
-      </div>
-    </div>
-
-    <div class="field">
-      <label>Home Address <span style="color:#888;font-weight:400">(for commute calculation)</span></label>
-      <input type="text" id="home_address" placeholder="e.g. 5000 Odense C, Denmark">
-    </div>
-
-    <div class="row">
-      <div class="field">
-        <label>Max Commute (minutes)</label>
-        <input type="number" id="max_commute" value="45" min="0">
-      </div>
-      <div class="field">
-        <label>Commute Mode</label>
-        <select id="commute_mode">
-          <option value="driving-car">Car</option>
-          <option value="cycling-regular">Bicycle</option>
-          <option value="foot-walking">Walking</option>
-          <option value="driving-hgv">Public transport</option>
-        </select>
-      </div>
-    </div>
+    <h2>💼 Work Experience</h2>
+    <div id="exp-list"></div>
+    <button class="add-row-btn" onclick="addExp()">+ Add Experience</button>
   </div>
 
   <!-- Issues panel -->
@@ -422,12 +455,12 @@ function setImportResult(type, msg) {
 
 function populateFromImport(p) {
   if (!p) return;
-  // Overwrite only non-empty extracted values so partial imports still help
   if (p.name)          sv('name', p.name);
   if (p.current_title) sv('job_title', p.current_title);
   if (p.title)         sv('job_title', p.title);
   if (p.summary)       sv('summary', p.summary);
   if (p.location) {
+    if (p.location.address) sv('street_address', p.location.address);
     if (p.location.city)    sv('city', p.location.city);
     if (p.location.country) sv('country', p.location.country);
   }
@@ -450,11 +483,37 @@ function populateFromImport(p) {
   if (lk.linkedin) sv('linkedin', lk.linkedin);
   if (lk.github)   sv('github', lk.github);
   if (lk.website)  sv('website', lk.website);
-  // Scroll to form
+  updateCommutePreview();
   document.getElementById('status-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// ─── Tag state ───────────────────────────────────────────────────────────────
+// ─── Commute visibility + preview ─────────────────────────────────────────────
+function updateCommuteVisibility() {
+  const remote = (document.querySelector('input[name=remote]:checked') || {}).value || 'any';
+  const card = document.getElementById('commute-card');
+  card.style.display = remote === 'remote' ? 'none' : 'block';
+}
+
+function updateCommutePreview() {
+  const parts = [v('street_address'), v('city'), v('country')].filter(Boolean);
+  const text = parts.length ? parts.join(', ') : 'Enter your address above to auto-fill';
+  document.getElementById('commute-preview-text').textContent = text;
+}
+
+function toggleCommuteOverride() {
+  const show = document.getElementById('commute-override-check').checked;
+  document.getElementById('commute-override-field').style.display = show ? 'block' : 'none';
+}
+
+function getHomeAddress() {
+  if (document.getElementById('commute-override-check').checked) {
+    return v('home_address_override') || null;
+  }
+  const parts = [v('street_address'), v('city'), v('country')].filter(Boolean);
+  return parts.length ? parts.join(', ') : null;
+}
+
+// ─── Tag state ────────────────────────────────────────────────────────────────
 const tagData = {
   languages: [],
   frameworks: [],
@@ -604,6 +663,7 @@ function collectProfile() {
     title: v('job_title') || null,
     summary: v('summary') || null,
     location: {
+      address: v('street_address') || null,
       city: v('city') || null,
       country: v('country') || null,
       willing_to_relocate: document.getElementById('willing_to_relocate').checked,
@@ -637,9 +697,9 @@ function collectPrefs() {
     digest_limit: ni('digest_limit') || 10,
     remote_preference: remote,
     commute: {
-      home_address: v('home_address') || null,
+      home_address: remote === 'remote' ? null : getHomeAddress(),
       home_coords: null,
-      max_minutes: ni('max_commute') || 45,
+      max_minutes: ni('max_commute') || 60,
       modes: [document.getElementById('commute_mode').value],
     },
     job_boards: [],
@@ -736,6 +796,12 @@ function clientCheck() {
       return false;
     }
   }
+  const remote = (document.querySelector('input[name=remote]:checked') || {}).value || 'any';
+  if (remote !== 'remote' && !getHomeAddress()) {
+    alert('Please enter your address (or at least City + Country) for commute calculation.');
+    document.getElementById('city').focus();
+    return false;
+  }
   return true;
 }
 
@@ -752,6 +818,7 @@ async function loadExisting() {
     sv('name', p.name);
     sv('job_title', p.title);
     sv('summary', p.summary);
+    sv('street_address', p.location && p.location.address);
     sv('city', p.location && p.location.city);
     sv('country', p.location && p.location.country);
     if (p.location && p.location.willing_to_relocate)
@@ -782,16 +849,29 @@ async function loadExisting() {
     if (radioEl) radioEl.checked = true;
 
     const cm = pr.commute || {};
-    sv('home_address', cm.home_address);
+    // If stored home_address differs from address+city+country, show override
+    const autoAddr = [
+      p.location && p.location.address,
+      p.location && p.location.city,
+      p.location && p.location.country,
+    ].filter(Boolean).join(', ');
+    if (cm.home_address && cm.home_address !== autoAddr) {
+      document.getElementById('commute-override-check').checked = true;
+      toggleCommuteOverride();
+      sv('home_address_override', cm.home_address);
+    }
     sv('max_commute', cm.max_minutes);
     if (cm.modes && cm.modes[0])
       document.getElementById('commute_mode').value = cm.modes[0];
+
+    updateCommutePreview();
+    updateCommuteVisibility();
 
     const bar = document.getElementById('status-bar');
     bar.textContent = '✓ Existing profile loaded — you are editing your current settings.';
     bar.style.display = 'block';
   } catch (_) {
-    // No existing profile — start fresh, no error needed
+    // No existing profile — start fresh
   }
 }
 
@@ -807,6 +887,7 @@ function ea(s) {
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
+updateCommuteVisibility();
 loadExisting();
 </script>
 </body>

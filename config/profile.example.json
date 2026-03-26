@@ -4,6 +4,7 @@
   "title": "Senior Backend Developer",
   "summary": "Brief professional summary",
   "location": {
+    "address": "Examplestreet 1",
     "city": "Odense",
     "country": "Denmark",
     "willing_to_relocate": false
