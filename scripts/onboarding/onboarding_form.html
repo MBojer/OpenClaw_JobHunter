@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JobHunter — Onboarding</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f4f4f8;color:#1a1a2e;min-height:100vh}
+
+.header{background:#1a1a2e;color:#fff;padding:1.5rem 2rem;display:flex;align-items:center;gap:1rem}
+.header h1{font-size:1.4rem;font-weight:600}
+.header p{opacity:.65;font-size:.875rem;margin-top:.2rem}
+
+.container{max-width:820px;margin:2rem auto;padding:0 1rem 4rem}
+
+.card{background:#fff;border-radius:10px;padding:1.75rem;margin-bottom:1.5rem;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.card h2{font-size:.95rem;font-weight:600;color:#4f46e5;text-transform:uppercase;letter-spacing:.04em;margin-bottom:1.25rem;padding-bottom:.6rem;border-bottom:2px solid #ede9fe}
+
+.field{margin-bottom:1rem}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:.82rem;font-weight:500;color:#555;margin-bottom:.3rem}
+.field input,.field textarea,.field select{width:100%;padding:.5rem .75rem;border:1px solid #ddd;border-radius:6px;font-size:.9rem;font-family:inherit;color:#1a1a2e;transition:border-color .15s}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+.field textarea{min-height:80px;resize:vertical}
+.field input[type=checkbox]{width:auto}
+
+.row{display:flex;gap:1rem;flex-wrap:wrap}
+.row>.field{flex:1;min-width:140px}
+
+/* Tag inputs */
+.tag-wrap{border:1px solid #ddd;border-radius:6px;padding:.35rem .4rem;display:flex;flex-wrap:wrap;gap:.3rem;cursor:text;transition:border-color .15s;min-height:38px;align-items:flex-start}
+.tag-wrap:focus-within{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+.tag{background:#ede9fe;color:#5b21b6;border-radius:4px;padding:.15rem .45rem;font-size:.8rem;display:inline-flex;align-items:center;gap:.25rem;white-space:nowrap}
+.tag .rm{cursor:pointer;opacity:.55;font-size:1rem;line-height:1;padding:0 .1rem}
+.tag .rm:hover{opacity:1}
+.tag-wrap input{border:none;outline:none;font-size:.875rem;min-width:100px;flex:1;padding:.1rem .25rem;background:transparent}
+
+/* Dynamic rows */
+.dyn-row{border:1px solid #e8e8f0;border-radius:8px;padding:1rem 1rem 1rem 1rem;margin-bottom:.75rem;position:relative}
+.dyn-row .rm-row{position:absolute;top:.65rem;right:.65rem;background:none;border:none;cursor:pointer;color:#bbb;font-size:1.25rem;line-height:1;padding:.1rem .25rem;border-radius:4px}
+.dyn-row .rm-row:hover{color:#e53e3e;background:#fff1f1}
+.add-row-btn{width:100%;background:none;border:1px dashed #ccc;color:#999;padding:.5rem;border-radius:6px;cursor:pointer;font-size:.85rem;margin-top:.25rem;transition:all .15s}
+.add-row-btn:hover{border-color:#4f46e5;color:#4f46e5;background:#fafafe}
+
+/* Radio group */
+.radio-group{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.1rem}
+.radio-group label{display:flex;align-items:center;gap:.35rem;cursor:pointer;font-size:.9rem;font-weight:400;color:#333}
+.radio-group input[type=radio]{width:auto;cursor:pointer}
+
+/* Checkbox group */
+.check-group{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.1rem}
+.check-group label{display:flex;align-items:center;gap:.35rem;cursor:pointer;font-size:.9rem;font-weight:400;color:#333}
+.check-group input[type=checkbox]{width:auto;cursor:pointer}
+
+/* Import card */
+.import-tabs{display:flex;gap:0;border-bottom:2px solid #e8e8f0;margin-bottom:1.25rem}
+.import-tab{padding:.5rem 1.1rem;font-size:.875rem;font-weight:500;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s}
+.import-tab.active{color:#4f46e5;border-bottom-color:#4f46e5}
+.import-tab:hover:not(.active){color:#555}
+.import-panel{display:none}
+.import-panel.active{display:block}
+.drop-zone{border:2px dashed #ccc;border-radius:8px;padding:2rem;text-align:center;cursor:pointer;transition:all .15s;color:#888;font-size:.875rem}
+.drop-zone:hover,.drop-zone.drag-over{border-color:#4f46e5;background:#fafafe;color:#4f46e5}
+.drop-zone input[type=file]{display:none}
+.drop-zone .dz-icon{font-size:2rem;margin-bottom:.5rem}
+.drop-zone .dz-hint{font-size:.8rem;opacity:.7;margin-top:.25rem}
+#import-result{margin-top:1rem;padding:.75rem 1rem;border-radius:6px;font-size:.85rem;display:none}
+#import-result.ok{background:#f0fdf4;border:1px solid #86efac;color:#15803d}
+#import-result.err{background:#fff1f2;border:1px solid #fca5a5;color:#991b1b}
+
+/* Status bar */
+#status-bar{background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;padding:.65rem 1rem;font-size:.85rem;border-radius:8px;margin-bottom:1.25rem;display:none}
+
+/* Issues panel */
+#issues-panel{background:#fffbeb;border:1px solid #f59e0b;border-radius:8px;padding:1.25rem;margin-bottom:1.5rem;display:none}
+#issues-panel h3{color:#92400e;font-size:.9rem;margin-bottom:.6rem}
+#issues-list{list-style:none}
+#issues-list li{padding:.2rem 0;font-size:.85rem;color:#78350f}
+#issues-list li::before{content:"⚠ "}
+.issues-note{margin-top:.65rem;font-size:.8rem;color:#a16207}
+
+/* Actions */
+.actions{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-top:1.5rem}
+.btn-primary{background:#4f46e5;color:#fff;border:none;padding:.7rem 1.4rem;border-radius:8px;font-size:.95rem;cursor:pointer;font-weight:500;transition:background .15s;display:inline-flex;align-items:center;gap:.4rem}
+.btn-primary:hover:not(:disabled){background:#4338ca}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-ghost{background:#fff;color:#4f46e5;border:1px solid #4f46e5;padding:.7rem 1.4rem;border-radius:8px;font-size:.95rem;cursor:pointer;font-weight:500;transition:all .15s}
+.btn-ghost:hover:not(:disabled){background:#ede9fe}
+.btn-ghost:disabled{opacity:.5;cursor:not-allowed}
+
+/* Success */
+#success-msg{background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:1.25rem;margin-top:1.5rem;display:none}
+#success-msg h3{color:#15803d;margin-bottom:.5rem}
+#success-msg p{color:#166534;font-size:.875rem;margin-bottom:.5rem}
+#success-msg code{background:#dcfce7;padding:.1rem .35rem;border-radius:3px;font-size:.85rem}
+#success-msg ul{padding-left:1.25rem;margin-top:.25rem}
+#success-msg li{color:#166534;font-size:.875rem;margin-bottom:.2rem}
+
+/* Spinner */
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>🦞 JobHunter — Onboarding</h1>
+    <p>Fill in your profile. JobHunter uses it to score and match jobs automatically.</p>
+  </div>
+</div>
+
+<div class="container">
+  <div id="status-bar"></div>
+
+  <!-- 0. Import -->
+  <div class="card">
+    <h2>📥 Import (optional)</h2>
+    <div class="import-tabs">
+      <div class="import-tab active" onclick="switchTab('file')">Upload CV (PDF / DOCX)</div>
+      <div class="import-tab" onclick="switchTab('paste')">Paste from LinkedIn</div>
+    </div>
+
+    <div id="tab-file" class="import-panel active">
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('cv-file').click()"
+           ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event)">
+        <input type="file" id="cv-file" accept=".pdf,.docx" onchange="fileChosen(this)">
+        <div class="dz-icon">📄</div>
+        <div>Click to choose a file, or drag &amp; drop here</div>
+        <div class="dz-hint">PDF or DOCX — Qwen will extract your profile automatically</div>
+      </div>
+      <div id="file-name" style="margin-top:.5rem;font-size:.82rem;color:#555;display:none"></div>
+      <button class="btn-primary" id="import-file-btn" style="margin-top:.75rem;display:none" onclick="doImportFile()">Extract &amp; Fill Form</button>
+    </div>
+
+    <div id="tab-paste" class="import-panel">
+      <div class="field" style="margin-bottom:.75rem">
+        <label>Paste your LinkedIn profile, CV text, or any professional bio</label>
+        <textarea id="paste-text" style="min-height:140px" placeholder="Paste your LinkedIn About + Experience section here, or any resume text..."></textarea>
+      </div>
+      <button class="btn-primary" id="import-paste-btn" onclick="doImportPaste()">Extract &amp; Fill Form</button>
+    </div>
+
+    <div id="import-result"></div>
+  </div>
+
+  <!-- 1. Basic Info -->
+  <div class="card">
+    <h2>👤 Basic Information</h2>
+    <div class="row">
+      <div class="field">
+        <label>Full Name <span style="color:#e53e3e">*</span></label>
+        <input type="text" id="name" placeholder="Your full name">
+      </div>
+      <div class="field">
+        <label>Current Job Title</label>
+        <input type="text" id="job_title" placeholder="e.g. Senior Backend Developer">
+      </div>
+    </div>
+    <div class="field">
+      <label>Professional Summary</label>
+      <textarea id="summary" placeholder="Brief description of who you are, what you do, and what you're looking for..."></textarea>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>City <span style="color:#e53e3e">*</span></label>
+        <input type="text" id="city" placeholder="e.g. Odense">
+      </div>
+      <div class="field">
+        <label>Country <span style="color:#e53e3e">*</span></label>
+        <input type="text" id="country" placeholder="e.g. Denmark">
+      </div>
+      <div class="field" style="flex:0 0 auto;display:flex;align-items:flex-end;padding-bottom:.1rem">
+        <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-weight:400;font-size:.9rem;color:#333">
+          <input type="checkbox" id="willing_to_relocate"> Willing to relocate
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Experience -->
+  <div class="card">
+    <h2>💼 Work Experience</h2>
+    <div id="exp-list"></div>
+    <button class="add-row-btn" onclick="addExp()">+ Add Experience</button>
+  </div>
+
+  <!-- 3. Skills -->
+  <div class="card">
+    <h2>🛠 Skills</h2>
+    <div class="row">
+      <div class="field">
+        <label>Programming Languages</label>
+        <div class="tag-wrap" id="tw-languages" onclick="focusTagInput(this)">
+          <input type="text" placeholder="Python, Go… Enter to add" data-key="languages" onkeydown="tagKey(event)">
+        </div>
+      </div>
+      <div class="field">
+        <label>Frameworks &amp; Libraries</label>
+        <div class="tag-wrap" id="tw-frameworks" onclick="focusTagInput(this)">
+          <input type="text" placeholder="FastAPI, React… Enter to add" data-key="frameworks" onkeydown="tagKey(event)">
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Tools &amp; Platforms</label>
+        <div class="tag-wrap" id="tw-tools" onclick="focusTagInput(this)">
+          <input type="text" placeholder="Docker, PostgreSQL… Enter to add" data-key="tools" onkeydown="tagKey(event)">
+        </div>
+      </div>
+      <div class="field">
+        <label>Languages Spoken</label>
+        <div class="tag-wrap" id="tw-spoken" onclick="focusTagInput(this)">
+          <input type="text" placeholder="Danish, English… Enter to add" data-key="spoken" onkeydown="tagKey(event)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Education -->
+  <div class="card">
+    <h2>🎓 Education</h2>
+    <div id="edu-list"></div>
+    <button class="add-row-btn" onclick="addEdu()">+ Add Education</button>
+  </div>
+
+  <!-- 5. Links -->
+  <div class="card">
+    <h2>🔗 Links</h2>
+    <div class="row">
+      <div class="field">
+        <label>LinkedIn</label>
+        <input type="url" id="linkedin" placeholder="https://linkedin.com/in/yourname">
+      </div>
+      <div class="field">
+        <label>GitHub</label>
+        <input type="url" id="github" placeholder="https://github.com/yourname">
+      </div>
+      <div class="field">
+        <label>Website</label>
+        <input type="url" id="website" placeholder="https://yoursite.com">
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Preferences -->
+  <div class="card">
+    <h2>⚙️ Job Preferences</h2>
+
+    <div class="field">
+      <label>Job Titles to Match</label>
+      <div class="tag-wrap" id="tw-jobtitles" onclick="focusTagInput(this)">
+        <input type="text" placeholder="Backend Developer… Enter to add" data-key="jobtitles" onkeydown="tagKey(event)">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Min Salary (DKK/month)</label>
+        <input type="number" id="min_salary" placeholder="45000" min="0" step="1000">
+      </div>
+      <div class="field">
+        <label>Min Match Score (0–100)</label>
+        <input type="number" id="min_score" value="60" min="0" max="100">
+      </div>
+      <div class="field">
+        <label>Max Jobs per Digest</label>
+        <input type="number" id="digest_limit" value="10" min="1" max="50">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Remote Preference</label>
+      <div class="radio-group">
+        <label><input type="radio" name="remote" value="remote"> Remote only</label>
+        <label><input type="radio" name="remote" value="hybrid"> Hybrid</label>
+        <label><input type="radio" name="remote" value="onsite"> On-site only</label>
+        <label><input type="radio" name="remote" value="any" checked> Any</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Keywords to Exclude</label>
+      <div class="tag-wrap" id="tw-excluded" onclick="focusTagInput(this)">
+        <input type="text" placeholder="unpaid, internship… Enter to add" data-key="excluded" onkeydown="tagKey(event)">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Home Address <span style="color:#888;font-weight:400">(for commute calculation)</span></label>
+      <input type="text" id="home_address" placeholder="e.g. 5000 Odense C, Denmark">
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Max Commute (minutes)</label>
+        <input type="number" id="max_commute" value="45" min="0">
+      </div>
+      <div class="field">
+        <label>Commute Mode</label>
+        <select id="commute_mode">
+          <option value="driving-car">Car</option>
+          <option value="cycling-regular">Bicycle</option>
+          <option value="foot-walking">Walking</option>
+          <option value="driving-hgv">Public transport</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Issues panel -->
+  <div id="issues-panel">
+    <h3>⚠️ Issues to review before saving</h3>
+    <ul id="issues-list"></ul>
+    <p class="issues-note">Fix the issues above, or save anyway — these are warnings, not blockers.</p>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="btn-primary" id="validate-btn" onclick="doValidate()">Validate &amp; Review</button>
+    <button class="btn-ghost" id="save-btn" onclick="doSave()" disabled>Save Profile</button>
+    <span id="action-hint" style="font-size:.82rem;color:#888">Validate first, then save.</span>
+  </div>
+
+  <!-- Success -->
+  <div id="success-msg">
+    <h3>✅ Profile saved!</h3>
+    <p>Your profile is stored and ready. Next steps:</p>
+    <ul>
+      <li>Send <code>/scrape</code> in Telegram or the web UI to fetch new jobs</li>
+      <li>Send <code>/digest</code> to see your first matches</li>
+      <li>Send <code>/onboard</code> again at any time to update your profile</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+// ─── Import ───────────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.import-tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && name === 'file') || (i === 1 && name === 'paste'));
+  });
+  document.getElementById('tab-file').classList.toggle('active', name === 'file');
+  document.getElementById('tab-paste').classList.toggle('active', name === 'paste');
+}
+
+function dzOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('drag-over'); }
+function dzLeave(e) { document.getElementById('drop-zone').classList.remove('drag-over'); }
+function dzDrop(e) {
+  e.preventDefault();
+  dzLeave(e);
+  const file = e.dataTransfer.files[0];
+  if (file) setChosenFile(file);
+}
+
+let chosenFile = null;
+function fileChosen(input) { if (input.files[0]) setChosenFile(input.files[0]); }
+function setChosenFile(file) {
+  chosenFile = file;
+  const nameEl = document.getElementById('file-name');
+  nameEl.textContent = '📎 ' + file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+  nameEl.style.display = 'block';
+  document.getElementById('import-file-btn').style.display = 'inline-flex';
+  setImportResult('', '');
+}
+
+async function doImportFile() {
+  if (!chosenFile) return;
+  const btn = document.getElementById('import-file-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Extracting…';
+  setImportResult('', '');
+  try {
+    const fd = new FormData();
+    fd.append('file', chosenFile);
+    const res = await fetch('/import', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    populateFromImport(data.profile);
+    setImportResult('ok', '✓ Profile extracted — review the fields below and adjust if needed.');
+  } catch (e) {
+    setImportResult('err', '✗ ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Extract &amp; Fill Form';
+  }
+}
+
+async function doImportPaste() {
+  const text = document.getElementById('paste-text').value.trim();
+  if (!text) { alert('Paste some text first.'); return; }
+  const btn = document.getElementById('import-paste-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Extracting…';
+  setImportResult('', '');
+  try {
+    const res = await fetch('/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    populateFromImport(data.profile);
+    setImportResult('ok', '✓ Profile extracted — review the fields below and adjust if needed.');
+  } catch (e) {
+    setImportResult('err', '✗ ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Extract &amp; Fill Form';
+  }
+}
+
+function setImportResult(type, msg) {
+  const el = document.getElementById('import-result');
+  el.className = type ? 'import-result ' + type : 'import-result';
+  el.style.display = type ? 'block' : 'none';
+  el.textContent = msg;
+}
+
+function populateFromImport(p) {
+  if (!p) return;
+  // Overwrite only non-empty extracted values so partial imports still help
+  if (p.name)          sv('name', p.name);
+  if (p.current_title) sv('job_title', p.current_title);
+  if (p.title)         sv('job_title', p.title);
+  if (p.summary)       sv('summary', p.summary);
+  if (p.location) {
+    if (p.location.city)    sv('city', p.location.city);
+    if (p.location.country) sv('country', p.location.country);
+  }
+  if (p.experience && p.experience.length) {
+    document.getElementById('exp-list').innerHTML = '';
+    expIdx = 0;
+    p.experience.forEach(addExp);
+  }
+  if (p.education && p.education.length) {
+    document.getElementById('edu-list').innerHTML = '';
+    eduIdx = 0;
+    p.education.forEach(addEdu);
+  }
+  const sk = p.skills || {};
+  if (sk.languages && sk.languages.length)         setTags('languages', sk.languages);
+  if (sk.frameworks && sk.frameworks.length)       setTags('frameworks', sk.frameworks);
+  if (sk.tools && sk.tools.length)                 setTags('tools', sk.tools);
+  if (sk.languages_spoken && sk.languages_spoken.length) setTags('spoken', sk.languages_spoken);
+  const lk = p.links || {};
+  if (lk.linkedin) sv('linkedin', lk.linkedin);
+  if (lk.github)   sv('github', lk.github);
+  if (lk.website)  sv('website', lk.website);
+  // Scroll to form
+  document.getElementById('status-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ─── Tag state ───────────────────────────────────────────────────────────────
+const tagData = {
+  languages: [],
+  frameworks: [],
+  tools: [],
+  spoken: [],
+  jobtitles: [],
+  excluded: [],
+};
+
+const tagWrapId = {
+  languages: 'tw-languages',
+  frameworks: 'tw-frameworks',
+  tools: 'tw-tools',
+  spoken: 'tw-spoken',
+  jobtitles: 'tw-jobtitles',
+  excluded: 'tw-excluded',
+};
+
+function focusTagInput(wrap) {
+  wrap.querySelector('input').focus();
+}
+
+function tagKey(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const input = e.target;
+    const key = input.dataset.key;
+    const val = input.value.trim().replace(/,+$/, '');
+    if (val && !tagData[key].map(t => t.toLowerCase()).includes(val.toLowerCase())) {
+      tagData[key].push(val);
+      renderTags(key);
+    }
+    input.value = '';
+  } else if (e.key === 'Backspace' && e.target.value === '' && tagData[e.target.dataset.key].length) {
+    const key = e.target.dataset.key;
+    tagData[key].pop();
+    renderTags(key);
+  }
+}
+
+function removeTag(key, idx) {
+  tagData[key].splice(idx, 1);
+  renderTags(key);
+}
+
+function renderTags(key) {
+  const wrap = document.getElementById(tagWrapId[key]);
+  const input = wrap.querySelector('input');
+  wrap.querySelectorAll('.tag').forEach(el => el.remove());
+  tagData[key].forEach((t, i) => {
+    const span = document.createElement('span');
+    span.className = 'tag';
+    span.innerHTML = esc(t) + ' <span class="rm" onclick="removeTag(\'' + key + '\',' + i + ')">×</span>';
+    wrap.insertBefore(span, input);
+  });
+}
+
+function setTags(key, arr) {
+  tagData[key] = Array.isArray(arr) ? arr.filter(Boolean) : [];
+  renderTags(key);
+}
+
+// ─── Experience rows ──────────────────────────────────────────────────────────
+let expIdx = 0;
+function addExp(d) {
+  d = d || {};
+  const id = 'exp-' + expIdx++;
+  const div = document.createElement('div');
+  div.className = 'dyn-row';
+  div.id = id;
+  div.innerHTML =
+    '<button class="rm-row" onclick="rmRow(\'' + id + '\')">×</button>' +
+    '<div class="row">' +
+      '<div class="field"><label>Job Title</label>' +
+        '<input type="text" name="exp-title" value="' + ea(d.title) + '" placeholder="e.g. Backend Developer"></div>' +
+      '<div class="field"><label>Company</label>' +
+        '<input type="text" name="exp-company" value="' + ea(d.company) + '" placeholder="e.g. Acme Corp"></div>' +
+    '</div>' +
+    '<div class="row">' +
+      '<div class="field"><label>From <span style="color:#888;font-weight:400">(YYYY or YYYY-MM)</span></label>' +
+        '<input type="text" name="exp-from" value="' + ea(d.from) + '" placeholder="2021-01"></div>' +
+      '<div class="field"><label>To <span style="color:#888;font-weight:400">(YYYY-MM or "present")</span></label>' +
+        '<input type="text" name="exp-to" value="' + ea(d.to) + '" placeholder="present"></div>' +
+    '</div>' +
+    '<div class="field"><label>Description</label>' +
+      '<textarea name="exp-desc" placeholder="Key responsibilities and achievements...">' + esc(d.description || '') + '</textarea></div>';
+  document.getElementById('exp-list').appendChild(div);
+}
+
+// ─── Education rows ───────────────────────────────────────────────────────────
+let eduIdx = 0;
+function addEdu(d) {
+  d = d || {};
+  const id = 'edu-' + eduIdx++;
+  const div = document.createElement('div');
+  div.className = 'dyn-row';
+  div.id = id;
+  div.innerHTML =
+    '<button class="rm-row" onclick="rmRow(\'' + id + '\')">×</button>' +
+    '<div class="row">' +
+      '<div class="field"><label>Degree</label>' +
+        '<input type="text" name="edu-degree" value="' + ea(d.degree) + '" placeholder="BSc Computer Science"></div>' +
+      '<div class="field"><label>Institution</label>' +
+        '<input type="text" name="edu-institution" value="' + ea(d.institution) + '"></div>' +
+      '<div class="field" style="flex:0 0 120px"><label>Year</label>' +
+        '<input type="number" name="edu-year" value="' + ea(d.year) + '" placeholder="2019" min="1950" max="2030"></div>' +
+    '</div>';
+  document.getElementById('edu-list').appendChild(div);
+}
+
+function rmRow(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+// ─── Collect form data ────────────────────────────────────────────────────────
+function collectProfile() {
+  const exp = [];
+  document.querySelectorAll('#exp-list .dyn-row').forEach(row => {
+    const title = row.querySelector('[name=exp-title]').value.trim();
+    const company = row.querySelector('[name=exp-company]').value.trim();
+    if (!title && !company) return;
+    exp.push({
+      title: title || null,
+      company: company || null,
+      from: row.querySelector('[name=exp-from]').value.trim() || null,
+      to: row.querySelector('[name=exp-to]').value.trim() || null,
+      description: row.querySelector('[name=exp-desc]').value.trim() || null,
+    });
+  });
+
+  const edu = [];
+  document.querySelectorAll('#edu-list .dyn-row').forEach(row => {
+    const degree = row.querySelector('[name=edu-degree]').value.trim();
+    const institution = row.querySelector('[name=edu-institution]').value.trim();
+    if (!degree && !institution) return;
+    const yr = row.querySelector('[name=edu-year]').value.trim();
+    edu.push({
+      degree: degree || null,
+      institution: institution || null,
+      year: yr ? parseInt(yr, 10) : null,
+    });
+  });
+
+  return {
+    name: v('name') || null,
+    title: v('job_title') || null,
+    summary: v('summary') || null,
+    location: {
+      city: v('city') || null,
+      country: v('country') || null,
+      willing_to_relocate: document.getElementById('willing_to_relocate').checked,
+    },
+    experience: exp,
+    skills: {
+      languages: [...tagData.languages],
+      frameworks: [...tagData.frameworks],
+      tools: [...tagData.tools],
+      languages_spoken: [...tagData.spoken],
+    },
+    education: edu,
+    links: {
+      linkedin: v('linkedin') || null,
+      github: v('github') || null,
+      website: v('website') || null,
+    },
+  };
+}
+
+function collectPrefs() {
+  const remote = (document.querySelector('input[name=remote]:checked') || {}).value || 'any';
+  return {
+    job_titles: [...tagData.jobtitles],
+    keywords_excluded: [...tagData.excluded],
+    salary: {
+      min_dkk_monthly: ni('min_salary') || 0,
+      currency: 'DKK',
+    },
+    min_score: ni('min_score') || 60,
+    digest_limit: ni('digest_limit') || 10,
+    remote_preference: remote,
+    commute: {
+      home_address: v('home_address') || null,
+      home_coords: null,
+      max_minutes: ni('max_commute') || 45,
+      modes: [document.getElementById('commute_mode').value],
+    },
+    job_boards: [],
+    delivery: { method: 'both' },
+  };
+}
+
+// ─── Validate ─────────────────────────────────────────────────────────────────
+let lastResult = null;
+
+async function doValidate() {
+  if (!clientCheck()) return;
+
+  const btn = document.getElementById('validate-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Validating…';
+  document.getElementById('action-hint').textContent = 'Asking Qwen to check your data…';
+
+  try {
+    const res = await fetch('/validate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({profile: collectProfile(), preferences: collectPrefs()}),
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    lastResult = data;
+
+    const panel = document.getElementById('issues-panel');
+    const list = document.getElementById('issues-list');
+    list.innerHTML = '';
+
+    if (data.issues && data.issues.length) {
+      data.issues.forEach(msg => {
+        const li = document.createElement('li');
+        li.textContent = msg;
+        list.appendChild(li);
+      });
+      panel.style.display = 'block';
+    } else {
+      panel.style.display = 'none';
+    }
+
+    document.getElementById('save-btn').disabled = false;
+    document.getElementById('action-hint').textContent =
+      data.issues && data.issues.length
+        ? 'Review the issues above, then save — or fix and validate again.'
+        : '✓ Looks good! Click Save Profile to continue.';
+  } catch (e) {
+    alert('Validation error: ' + e.message);
+    document.getElementById('action-hint').textContent = 'Validation failed — see error above.';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Validate &amp; Review';
+  }
+}
+
+// ─── Save ─────────────────────────────────────────────────────────────────────
+async function doSave() {
+  if (!lastResult) { alert('Please validate first.'); return; }
+
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin" style="border-top-color:#4f46e5"></span> Saving…';
+
+  try {
+    const res = await fetch('/save', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({profile: lastResult.profile, preferences: lastResult.preferences}),
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    document.getElementById('success-msg').style.display = 'block';
+    document.getElementById('issues-panel').style.display = 'none';
+    document.getElementById('action-hint').textContent = '';
+    window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+  } catch (e) {
+    alert('Save failed: ' + e.message);
+    btn.disabled = false;
+    btn.innerHTML = 'Save Profile';
+  }
+}
+
+// ─── Client-side required check ───────────────────────────────────────────────
+function clientCheck() {
+  const checks = [['name', 'Full Name'], ['city', 'City'], ['country', 'Country']];
+  for (const [id, label] of checks) {
+    if (!v(id)) {
+      alert(label + ' is required.');
+      document.getElementById(id).focus();
+      return false;
+    }
+  }
+  return true;
+}
+
+// ─── Load existing profile ────────────────────────────────────────────────────
+async function loadExisting() {
+  try {
+    const res = await fetch('/status');
+    const data = await res.json();
+    if (!data.onboarded) return;
+
+    const p = data.profile;
+    const pr = data.preferences;
+
+    sv('name', p.name);
+    sv('job_title', p.title);
+    sv('summary', p.summary);
+    sv('city', p.location && p.location.city);
+    sv('country', p.location && p.location.country);
+    if (p.location && p.location.willing_to_relocate)
+      document.getElementById('willing_to_relocate').checked = true;
+
+    (p.experience || []).forEach(addExp);
+    (p.education || []).forEach(addEdu);
+
+    const sk = p.skills || {};
+    setTags('languages', sk.languages);
+    setTags('frameworks', sk.frameworks);
+    setTags('tools', sk.tools);
+    setTags('spoken', sk.languages_spoken);
+
+    const lk = p.links || {};
+    sv('linkedin', lk.linkedin);
+    sv('github', lk.github);
+    sv('website', lk.website);
+
+    setTags('jobtitles', pr.job_titles);
+    setTags('excluded', pr.keywords_excluded);
+    sv('min_salary', pr.salary && pr.salary.min_dkk_monthly);
+    sv('min_score', pr.min_score);
+    sv('digest_limit', pr.digest_limit);
+
+    const remote = pr.remote_preference || 'any';
+    const radioEl = document.querySelector('input[name=remote][value="' + remote + '"]');
+    if (radioEl) radioEl.checked = true;
+
+    const cm = pr.commute || {};
+    sv('home_address', cm.home_address);
+    sv('max_commute', cm.max_minutes);
+    if (cm.modes && cm.modes[0])
+      document.getElementById('commute_mode').value = cm.modes[0];
+
+    const bar = document.getElementById('status-bar');
+    bar.textContent = '✓ Existing profile loaded — you are editing your current settings.';
+    bar.style.display = 'block';
+  } catch (_) {
+    // No existing profile — start fresh, no error needed
+  }
+}
+
+// ─── Utils ────────────────────────────────────────────────────────────────────
+function v(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function sv(id, val) { const el = document.getElementById(id); if (el && val != null) el.value = val; }
+function ni(id) { const n = parseInt(v(id), 10); return isNaN(n) ? null : n; }
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function ea(s) {
+  return String(s || '').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+loadExisting();
+</script>
+</body>
+</html>

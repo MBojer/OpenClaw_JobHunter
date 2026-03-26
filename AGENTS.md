@@ -61,6 +61,7 @@ Only these commands may be run via the exec tool:
 python3 scripts/scraping/run_scrape.py
 python3 scripts/local_llm/score_jobs.py
 python3 scripts/onboarding/parse_profile.py
+python3 scripts/onboarding/web_server.py [--port PORT]
 python3 scripts/email/generate_application.py
 python3 scripts/email/deliver_documents.py
 python3 scripts/db/migrate.py
