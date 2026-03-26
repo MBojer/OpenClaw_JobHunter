@@ -16,7 +16,6 @@ Return ONLY this JSON structure (no markdown fences, no explanation, no extra te
 }
 
 Produce an issue warning for each of these conditions that apply:
-- summary is missing, null, or fewer than 20 characters
 - fewer than 3 skills total across all skill categories combined
 - any experience entry is missing a description
 - any date range where "to" appears to be before "from"

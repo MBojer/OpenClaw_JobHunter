@@ -6,7 +6,6 @@ Required JSON structure:
 {
   "name": "string or null",
   "current_title": "string or null",
-  "summary": "string — 1-2 sentences max, or null",
   "location": {
     "city": "string or null",
     "country": "string or null"

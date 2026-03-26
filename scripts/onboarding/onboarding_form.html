@@ -176,11 +176,6 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f4f4f8;color:#1a
         <input type="text" id="job_title" placeholder="e.g. Senior Backend Developer">
       </div>
     </div>
-    <div class="field">
-      <label>Professional Summary</label>
-      <textarea id="summary" placeholder="Brief description of who you are, what you do, and what you're looking for..."></textarea>
-    </div>
-
     <hr class="card-divider">
 
     <div class="field">
@@ -669,7 +664,6 @@ function collectProfile() {
   return {
     name: v('name') || null,
     title: v('job_title') || null,
-    summary: v('summary') || null,
     location: {
       address: v('street_address') || null,
       city: v('city') || null,
