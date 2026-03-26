@@ -12,6 +12,7 @@ import os
 import json
 import urllib.request
 import urllib.parse
+import urllib.error
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -95,14 +96,18 @@ def get_commute_minutes(
         req = urllib.request.Request(
             url, headers={"Accept": "application/geo+json"}
         )
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            data = json.loads(resp.read())
+        try:
+            resp_data = urllib.request.urlopen(req, timeout=15).read()
+        except urllib.error.HTTPError as e:
+            resp_data = e.read()
+
+        data = json.loads(resp_data)
 
         # Check for ORS error response
         if "error" in data:
             code = data["error"].get("code")
-            if code == 2004:
-                # Exceeds max distance — job is too far
+            if code in (2004, 2010):
+                # 2004 = exceeds max distance, 2010 = no routable point (outside map area)
                 return None
             raise ORSError(data["error"].get("message", "ORS error"))
 
