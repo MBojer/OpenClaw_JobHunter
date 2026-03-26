@@ -799,10 +799,7 @@ async function doSave() {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
-    document.getElementById('success-msg').style.display = 'block';
-    document.getElementById('issues-panel').style.display = 'none';
-    document.getElementById('action-hint').textContent = '';
-    window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+    window.location.href = '/boards';
   } catch (e) {
     alert('Save failed: ' + e.message);
   } finally {

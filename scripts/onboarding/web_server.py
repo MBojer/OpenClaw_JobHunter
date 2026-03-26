@@ -26,6 +26,8 @@ from scripts.onboarding.parse_profile import save_profile, parse_raw
 app = Flask(__name__)
 
 FORM_PATH = Path(__file__).parent / "onboarding_form.html"
+BOARDS_FORM_PATH = Path(__file__).parent / "boards_form.html"
+BOARD_REGISTRY_PATH = Path(__file__).parent.parent.parent / "skills" / "job-scraper" / "board_registry.json"
 VALIDATE_PROMPT_PATH = (
     Path(__file__).parent.parent.parent / "skills" / "onboarding" / "validate_prompt.txt"
 )
@@ -144,6 +146,65 @@ def save():
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/boards")
+def boards():
+    return send_file(BOARDS_FORM_PATH)
+
+
+@app.route("/boards/status")
+def boards_status():
+    registry = json.loads(BOARD_REGISTRY_PATH.read_text(encoding="utf-8"))
+    visible_boards = [
+        {"slug": b["slug"], "name": b["name"], "tier": b["tier"], "enabled": b["enabled"]}
+        for b in registry["boards"]
+        if not b.get("ui_hidden")
+    ]
+    searxng_entry = next((b for b in registry["boards"] if b["slug"] == "searxng"), {})
+    searxng_config = {
+        "engines": searxng_entry.get("engines", ""),
+        "time_range": searxng_entry.get("time_range", "month"),
+        "language": searxng_entry.get("language", ""),
+    }
+    row = fetchone("SELECT preferences FROM profile WHERE id = 1")
+    prefs = (row.get("preferences") or {}) if row else {}
+    job_boards = prefs.get("job_boards", [])
+    return jsonify({"boards": visible_boards, "job_boards": job_boards, "searxng": searxng_config})
+
+
+@app.route("/boards/save", methods=["POST"])
+def boards_save():
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"error": "Invalid JSON body"}), 400
+
+    registry = json.loads(BOARD_REGISTRY_PATH.read_text(encoding="utf-8"))
+    board_enabled = data.get("boards", {})
+    searxng_update = data.get("searxng", {})
+
+    for b in registry["boards"]:
+        if b.get("ui_hidden"):
+            continue
+        if b["slug"] in board_enabled:
+            b["enabled"] = bool(board_enabled[b["slug"]])
+        if b["slug"] == "searxng":
+            for key in ("engines", "time_range", "language"):
+                if key in searxng_update:
+                    b[key] = searxng_update[key]
+
+    BOARD_REGISTRY_PATH.write_text(
+        json.dumps(registry, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+
+    row = fetchone("SELECT preferences FROM profile WHERE id = 1")
+    if row:
+        prefs = row.get("preferences") or {}
+        prefs["job_boards"] = data.get("job_boards", [])
+        from scripts.db.client import execute
+        execute("UPDATE profile SET preferences=%s WHERE id=1", [json.dumps(prefs)])
+
+    return jsonify({"ok": True})
 
 
 if __name__ == "__main__":
