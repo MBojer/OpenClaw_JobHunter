@@ -122,7 +122,7 @@ See [`docs/adding-a-board.md`](docs/adding-a-board.md).
 
 ### v2.1
 - **Public transport commute** — Rejseplanen API (Denmark) for bus/train routing
-- **Docker Compose installer** — one-command setup for SearXNG + OpenRouteService
+- **Docker Compose installer** — one-command setup for SearXNG + OpenRouteService + Qradrent
 - **docx/pdf documents** — proper Word and PDF CV/cover letter generation
 - **Reply monitoring** — track application status from inbox
 
