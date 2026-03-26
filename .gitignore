@@ -35,6 +35,8 @@ MEMORY.md
 BOOTSTRAP.md
 # startup checklist (agent-written)
 BOOT.md
+# User information file (agent-written)
+USER.md
 # Canvas UI files
 canvas/
 # any nested openclaw state written into the workspace
