@@ -739,7 +739,7 @@ async function doValidate() {
     const list = document.getElementById('issues-list');
     list.innerHTML = '';
 
-    const issues = data.issues || [];
+    const issues = clientFilterIssues(data.issues || []);
     if (issues.length) {
       issues.forEach(msg => {
         const li = document.createElement('li');
@@ -896,6 +896,18 @@ function markFieldError(id) {
   if (!el) return;
   const field = el.closest('.field');
   if (field) field.classList.add('field-error');
+}
+
+function clientFilterIssues(issues) {
+  // Qwen7b is unreliable at counting arrays and checking nulls — verify locally.
+  const totalSkills = ['languages','frameworks','tools','languages_spoken']
+    .reduce((n, k) => n + (tagData[k] || []).length, 0);
+  const hasAddr = !!getHomeAddress();
+  return issues.filter(msg => {
+    if (/fewer than 3 skills/i.test(msg) && totalSkills >= 3) return false;
+    if (/home_address/i.test(msg) && hasAddr) return false;
+    return true;
+  });
 }
 
 function highlightIssues(issues) {
