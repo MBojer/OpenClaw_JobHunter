@@ -21,12 +21,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-QDRANT_URL        = os.environ.get("QDRANT_URL", "").rstrip("/")
-QDRANT_API_KEY    = os.environ.get("QDRANT_API_KEY", "")   # optional for local
-PROC_LLM_BASE_URL = os.environ.get("PROC_LLM_BASE_URL", "http://localhost:11434")
-PROC_LLM_API_KEY  = os.environ.get("PROC_LLM_API_KEY", "")
-EMBED_MODEL       = os.environ.get("EMBED_MODEL", "zylonai/multilingual-e5-large:latest")
-COLLECTION_NAME   = os.environ.get("QDRANT_COLLECTION", "jobs_default")
+QDRANT_URL      = os.environ.get("QDRANT_URL", "").rstrip("/")
+QDRANT_API_KEY  = os.environ.get("QDRANT_API_KEY", "")   # optional for local
+EMBED_BASE_URL  = os.environ.get("EMBED_BASE_URL", os.environ.get("PROC_LLM_BASE_URL", "http://localhost:11434")).rstrip("/")
+EMBED_API_KEY   = os.environ.get("EMBED_API_KEY", os.environ.get("PROC_LLM_API_KEY", ""))
+EMBED_MODEL     = os.environ.get("EMBED_MODEL", "nomic-embed-text")
+COLLECTION_NAME = os.environ.get("QDRANT_COLLECTION", "jobs_default")
 SIMILARITY_THRESHOLD = 0.92
 
 
@@ -73,21 +73,17 @@ def _qdrant_request(method: str, path: str, body: dict = None) -> dict:
 
 
 def get_embedding(text: str) -> list[float]:
-    """Get embedding vector via processing LLM endpoint."""
-    url = f"{PROC_LLM_BASE_URL}/api/embeddings"
-    payload = json.dumps({"model": EMBED_MODEL, "prompt": _strip_html(text)[:2000]}).encode()
+    """Get embedding vector via /v1/embeddings (OpenAI-compatible)."""
+    url = f"{EMBED_BASE_URL}/v1/embeddings"
+    payload = json.dumps({"model": EMBED_MODEL, "input": _strip_html(text)[:2000]}).encode()
     headers = {"Content-Type": "application/json"}
-    if PROC_LLM_API_KEY:
-        headers["Authorization"] = f"Bearer {PROC_LLM_API_KEY}"
-    req = urllib.request.Request(
-        url, data=payload,
-        headers=headers,
-        method="POST"
-    )
+    if EMBED_API_KEY:
+        headers["Authorization"] = f"Bearer {EMBED_API_KEY}"
+    req = urllib.request.Request(url, data=payload, headers=headers, method="POST")
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
             data = json.loads(resp.read())
-            return data["embedding"]
+            return data["data"][0]["embedding"]
     except urllib.error.HTTPError as e:
         body = e.read().decode(errors="replace")
         raise QdrantError(f"Embedding failed: HTTP {e.code}: {body}") from e
