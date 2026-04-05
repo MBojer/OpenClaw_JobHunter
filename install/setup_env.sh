@@ -152,6 +152,18 @@ prompt "PERSONAL_EMAIL" \
     "Where the agent sends finished CVs and cover letters"
 echo ""
 
+# ── Onboarding web form ──────────────────────────────────────────────────────
+echo ""
+echo -e "${YELLOW}── Onboarding web form ──${RESET}"
+prompt "OPENCLAW_BASE_URL" \
+    "OpenClaw Public Base URL" \
+    "Public URL of your OpenClaw instance (e.g. https://openclaw.example.com) — used to send the /onboard link to the user"
+
+prompt "ONBOARDING_PORT" \
+    "Onboarding Server Port" \
+    "Internal port for the onboarding Flask server (Caddy should proxy /onboard/* → this port)" \
+    "8080"
+
 # ── Note: Telegram is handled by setup_telegram.sh ──────────────────────────
 
 echo ""

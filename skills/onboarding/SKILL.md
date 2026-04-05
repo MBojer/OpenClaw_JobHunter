@@ -11,91 +11,26 @@ run, or when the user wants to update their profile.
 
 ## Flow
 
-### Step 1 — Welcome
-Greet the user briefly. Explain what JobHunter does in 2-3 sentences.
-Ask them to paste their LinkedIn profile (the full text from their LinkedIn "About" +
-"Experience" + "Skills" sections). Tell them they can also paste a raw CV.
+### Step 1 — Start the web server
+Run: `python3 scripts/onboarding/start_server.py`
+Parse the JSON output and extract the `url` field.
 
-### Step 2 — Parse (offload to Qwen, do NOT process inline)
-Once the user pastes their profile:
-1. Save the raw text to a temp file
-2. Call: `python3 scripts/onboarding/parse_profile.py --input <tempfile>`
-3. This calls Qwen2.5:7b locally. Wait for the result.
-4. The script outputs structured JSON to stdout.
+### Step 2 — Send the URL to the user
+Tell the user:
+> Your onboarding form is ready. Open this link in your browser:
+> [url from step 1]
+>
+> Fill in your profile (you can import a PDF/DOCX CV), then select your job boards on the next tab.
+> Come back here and say **done** when you're finished.
 
-**IMPORTANT:** Do not read, summarize, or repeat the raw pasted text back.
-Only work with the structured JSON output from the script.
+### Step 3 — Wait for confirmation
+Wait for the user to say "done" (any variant: "Done", "finished", "ready", etc.).
+Do not prompt with further questions — the form covers everything.
 
-### Step 3 — Confirm with user
-Present the structured profile as a clean summary. Example format:
-```
-Here's what I extracted:
-Name: [name]
-Current title: [title]
-Experience: [N] roles, most recent: [last role] at [last company]
-Skills: [top 8 skills]
-Location: [location]
-```
-Ask: "Does this look right? Reply YES to save, or tell me what to correct."
+### Step 4 — Stop the web server
+Run: `python3 scripts/onboarding/stop_server.py`
 
-### Step 4 — Preferences
-Ask these questions one at a time:
-1. What job titles are you looking for? (e.g. "IT Administrator, Network Engineer")
-2. What's your minimum monthly salary? (DKK or EUR)
-3. Remote, local, or both?
-4. Any keywords to always exclude? (e.g. "junior, unpaid")
-5. What's your full name? (for CV and cover letter)
-6. What's your LinkedIn profile URL?
-7. What's your home address or postcode? (for commute calculation and cover letter)
-8. How do you commute? (Car / Bicycle / E-bike / Walk — pick one or more)
-9. What's the maximum commute time you'd accept for an office job? (minutes)
-10. What time do you want to arrive at work? (e.g. 08:30)
-
-### Step 5 — Save
-Call: `python3 scripts/onboarding/parse_profile.py --save --profile-json '<json>'`
-This writes `config/profile.json` and `config/preferences.json`.
-Also inserts/updates the `profile` table in PostgreSQL.
-
-### Step 6 — Discover job boards
-Ask the user two questions:
-1. "Are you looking for remote, local, or both?"
-2. "Which country or region?" (skip if remote only)
-
-Then search for relevant job boards using SearXNG directly:
-```python
-import sys, json, os, urllib.request, urllib.parse
-sys.path.insert(0, '.')
-from dotenv import load_dotenv; load_dotenv()
-base = os.environ.get('SEARXNG_URL', 'http://localhost')
-# Adjust query based on remote/local preference
-query = 'best remote job boards software' # or 'job boards Denmark IT'
-q = urllib.parse.urlencode({'q': query, 'format': 'json', 'language': 'en'})
-req = urllib.request.Request(f'{base}/search?{q}', headers={'Accept': 'application/json'})
-data = json.loads(urllib.request.urlopen(req, timeout=10).read())
-results = [(r['title'], r['url']) for r in data.get('results', [])[:15]]
-print(json.dumps(results))
-```
-Extract domain names from URLs and present as a numbered list.
-
-Present up to 10 results as a numbered list:
-```
-Here are job boards I found. Reply with the numbers you want,
-ALL for all of them, or NONE to skip:
-
-1. remoteok.com — Remote jobs worldwide
-2. weworkremotely.com — Remote jobs
-3. jobindex.dk — Danish jobs
-4. it-jobbank.dk — Danish IT jobs
-...
-```
-
-Save selected boards to preferences:
-```python
-prefs['job_boards'] = ["remoteok.com", "jobindex.dk", ...]
-prefs['remote_preference'] = "remote" | "local" | "both"
-```
-
-Tell user: "You can manage boards anytime with /boards"
+Tell user: "✓ Profile saved"
 
 ### Step 7 — Register cron jobs
 Before finishing, register the scheduled jobs by running each of these commands:

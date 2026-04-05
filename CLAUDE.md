@@ -12,7 +12,7 @@ It scrapes job boards, scores matches against a user profile using a local LLM,
 delivers a daily digest via Telegram, and generates tailored CVs and cover letters on demand.
 
 **Repo:** https://github.com/MBojer/OpenClaw_JobHunter
-**OpenClaw version:** 2026.3.13
+**OpenClaw version:** 2026.4.2
 
 ---
 

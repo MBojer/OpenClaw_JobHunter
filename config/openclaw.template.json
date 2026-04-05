@@ -77,6 +77,8 @@
         "python scripts/scraping/run_scrape.py",
         "python scripts/local_llm/score_jobs.py",
         "python scripts/onboarding/parse_profile.py",
+        "python3 scripts/onboarding/start_server.py",
+        "python3 scripts/onboarding/stop_server.py",
         "python scripts/email/generate_application.py",
         "python scripts/email/deliver_documents.py",
         "python scripts/db/migrate.py",
