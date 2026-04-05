@@ -26,8 +26,7 @@ QDRANT_API_KEY    = os.environ.get("QDRANT_API_KEY", "")   # optional for local
 PROC_LLM_BASE_URL = os.environ.get("PROC_LLM_BASE_URL", "http://localhost:11434")
 PROC_LLM_API_KEY  = os.environ.get("PROC_LLM_API_KEY", "")
 EMBED_MODEL       = os.environ.get("EMBED_MODEL", "zylonai/multilingual-e5-large:latest")
-_agent_id         = os.environ.get("OPENCLAW_AGENT_ID", "default")
-COLLECTION_NAME   = f"jobs_{_agent_id}"
+COLLECTION_NAME   = os.environ.get("QDRANT_COLLECTION", "jobs_default")
 SIMILARITY_THRESHOLD = 0.92
 
 
