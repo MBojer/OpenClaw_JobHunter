@@ -61,14 +61,14 @@ else
     fail "Database schema incomplete — run: python3 scripts/db/migrate.py"
 fi
 
-# ── Ollama ───────────────────────────────────────────────────────────────────
-if curl -sf "${OLLAMA_BASE_URL:-http://localhost:11434}/api/tags" >/dev/null; then
-    ok "Ollama reachable at ${OLLAMA_BASE_URL:-http://localhost:11434}"
+# ── Processing LLM ───────────────────────────────────────────────────────────
+if curl -sf "${PROC_LLM_BASE_URL:-http://localhost:11434}/api/tags" >/dev/null; then
+    ok "Processing LLM reachable at ${PROC_LLM_BASE_URL:-http://localhost:11434}"
 else
-    fail "Ollama not reachable — is it running? Try: ollama serve"
+    fail "Processing LLM not reachable — check PROC_LLM_BASE_URL in .env"
 fi
 
-MODEL="${OLLAMA_MODEL:-qwen2.5:7b}"
+MODEL="${PROC_LLM_MODEL:-qwen2.5:7b}"
 if python3 -c "
 import os, sys
 os.chdir('$INSTALL_DIR')
@@ -76,9 +76,9 @@ sys.path.insert(0, '.')
 from scripts.local_llm.ollama_client import model_is_pulled
 sys.exit(0 if model_is_pulled() else 1)
 " 2>/dev/null; then
-    ok "Ollama model ($MODEL) is pulled"
+    ok "Processing LLM model ($MODEL) is available"
 else
-    warn "Ollama model ($MODEL) not found — run: ollama pull $MODEL"
+    warn "Processing LLM model ($MODEL) not found — ensure it is loaded on the server"
 fi
 
 # ── Workspace is git repo ────────────────────────────────────────────────────

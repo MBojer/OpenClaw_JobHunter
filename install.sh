@@ -56,11 +56,11 @@ prereq_check "git" \
     "Install git: apt install git"
 
 # Ollama — warn only, may be remote and .env not set up yet
-OLLAMA_URL="${OLLAMA_BASE_URL:-http://localhost:11434}"
-if curl -sf "${OLLAMA_URL}/api/tags" &>/dev/null; then
-    echo "  ✓ Ollama reachable at $OLLAMA_URL"
+PROC_LLM_URL="${PROC_LLM_BASE_URL:-http://localhost:11434}"
+if curl -sf "${PROC_LLM_URL}/api/tags" &>/dev/null; then
+    echo "  ✓ Processing LLM reachable at $PROC_LLM_URL"
 else
-    echo "  ⚠  Ollama not reachable at $OLLAMA_URL — configure OLLAMA_BASE_URL in .env if remote"
+    echo "  ⚠  Processing LLM not reachable at $PROC_LLM_URL — configure PROC_LLM_BASE_URL in .env"
 fi
 
 echo "  ✓ PostgreSQL (connectivity checked after .env setup)"
@@ -108,21 +108,19 @@ info "Running database migrations..."
 python3 scripts/db/migrate.py
 success "Database ready"
 
-# ── Step 6: Ollama model ────────────────────────────────────────────────────
+# ── Step 6: Processing LLM model ────────────────────────────────────────────
 source .env
-MODEL="${OLLAMA_MODEL:-qwen2.5:7b}"
-info "Checking Ollama model ($MODEL)..."
+MODEL="${PROC_LLM_MODEL:-qwen2.5:7b}"
+info "Checking processing LLM model ($MODEL)..."
 if python3 -c "
 import sys
 sys.path.insert(0, '.')
 from scripts.local_llm.ollama_client import model_is_pulled
 sys.exit(0 if model_is_pulled() else 1)
 " 2>/dev/null; then
-    success "$MODEL already pulled"
+    success "$MODEL available"
 else
-    warn "$MODEL not found — pulling now (~4.5GB, this may take a while)..."
-    ollama pull "$MODEL"
-    success "$MODEL pulled"
+    warn "$MODEL not found on the server — ensure it is loaded (e.g. ollama pull $MODEL)"
 fi
 
 # ── Step 7: Register agent with OpenClaw ────────────────────────────────────

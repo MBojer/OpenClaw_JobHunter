@@ -89,18 +89,23 @@ prompt "TOGETHER_WARN_AT_USD" \
     "Get a warning when this much budget remains" \
     "1.00"
 
-# ── Ollama ───────────────────────────────────────────────────────────────────
+# ── Processing LLM ───────────────────────────────────────────────────────────
 echo ""
-echo -e "${YELLOW}── Local LLM (Ollama) ──${RESET}"
-prompt "OLLAMA_BASE_URL" \
-    "Ollama Base URL" \
-    "Where Ollama is running" \
+echo -e "${YELLOW}── Processing LLM (LiteLLM / Ollama) ──${RESET}"
+prompt "PROC_LLM_BASE_URL" \
+    "Processing LLM Base URL" \
+    "LiteLLM or Ollama endpoint" \
     "http://localhost:11434"
 
-prompt "OLLAMA_MODEL" \
-    "Ollama Model" \
-    "Local model for scoring and parsing" \
+prompt "PROC_LLM_MODEL" \
+    "Processing LLM Model" \
+    "Model for scoring and parsing" \
     "qwen2.5:7b"
+
+prompt "PROC_LLM_API_KEY" \
+    "Processing LLM API Key" \
+    "Leave empty for unauthenticated Ollama" \
+    ""
 
 # ── PostgreSQL ───────────────────────────────────────────────────────────────
 echo ""

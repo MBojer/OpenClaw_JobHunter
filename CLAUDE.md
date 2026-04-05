@@ -22,7 +22,7 @@ delivers a daily digest via Telegram, and generates tailored CVs and cover lette
 |---|---|
 | OpenClaw gateway | Runs on dedicated VMs — see your .env for hostnames |
 | PostgreSQL | Remote PostgreSQL — configured in DATABASE_URL in .env |
-| Ollama | Remote Ollama — configured in OLLAMA_BASE_URL in .env |
+| Processing LLM | LiteLLM / Ollama — configured in PROC_LLM_BASE_URL, PROC_LLM_MODEL, PROC_LLM_API_KEY in .env |
 | SearXNG | Self-hosted — configured in SEARXNG_URL in .env |
 | Together.ai | ~$10 budget, used ONLY for CV/cover letter generation |
 | OpenRouter | Free model `openrouter/stepfun/step-3.5-flash:free` for orchestration |
@@ -37,9 +37,9 @@ Free model (OpenRouter)     — orchestration, digest, user chat
                               Sees: structured metadata ONLY, never raw content
                               ~1 API call per day
 
-Qwen2.5:7b (Ollama, local)  — job scoring, profile parsing, deduplication
+Proc LLM (LiteLLM/Ollama)   — job scoring, profile parsing, deduplication
                               Sees: raw job descriptions and profile text
-                              Cost: $0, runs on remote Ollama server
+                              Cost: $0 (local model via PROC_LLM_BASE_URL)
 
 Together.ai (paid)          — CV + cover letter generation only
                               Sees: profile.json + job description

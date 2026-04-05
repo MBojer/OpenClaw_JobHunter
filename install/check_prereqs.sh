@@ -46,19 +46,19 @@ check "git" \
     "git --version" \
     "Install git: apt install git"
 
-# ── Ollama — may be remote, read URL from .env if available ─────────────────
+# ── Processing LLM — may be remote, read URL from .env if available ──────────
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 ENV_FILE="$SCRIPT_DIR/.env"
-OLLAMA_URL="http://localhost:11434"
+PROC_LLM_URL="http://localhost:11434"
 
 if [ -f "$ENV_FILE" ]; then
-    LOADED_URL=$(grep "^OLLAMA_BASE_URL=" "$ENV_FILE" 2>/dev/null | cut -d= -f2- | tr -d '"' || true)
-    [ -n "$LOADED_URL" ] && OLLAMA_URL="$LOADED_URL"
+    LOADED_URL=$(grep "^PROC_LLM_BASE_URL=" "$ENV_FILE" 2>/dev/null | cut -d= -f2- | tr -d '"' || true)
+    [ -n "$LOADED_URL" ] && PROC_LLM_URL="$LOADED_URL"
 fi
 
-warn_only "Ollama reachable at $OLLAMA_URL" \
-    "curl -sf ${OLLAMA_URL}/api/tags" \
-    "Ollama not reachable at $OLLAMA_URL — set OLLAMA_BASE_URL in .env and ensure Ollama is running"
+warn_only "Processing LLM reachable at $PROC_LLM_URL" \
+    "curl -sf ${PROC_LLM_URL}/api/tags" \
+    "Processing LLM not reachable at $PROC_LLM_URL — set PROC_LLM_BASE_URL in .env"
 
 # ── PostgreSQL — no local client needed, psycopg2 connects directly ──────────
 # Connectivity is verified in install/verify.sh after DATABASE_URL is configured.
