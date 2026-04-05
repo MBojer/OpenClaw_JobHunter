@@ -13,47 +13,24 @@ run, or when the user wants to update their profile.
 
 ### Step 1 — Start the web server
 Run: `python3 scripts/onboarding/start_server.py`
-Parse the JSON output and extract the `url` field.
+Parse the JSON output and extract the `url` and `pin` fields.
 
-### Step 2 — Send the URL to the user
+### Step 2 — Send the URL and PIN to the user
 Tell the user:
 > Your onboarding form is ready. Open this link in your browser:
 > [url from step 1]
+> PIN: [pin from step 1] ← enter this on the first page
 >
-> Fill in your profile (you can import a PDF/DOCX CV), then select your job boards on the next tab.
-> Come back here and say **done** when you're finished.
+> Complete all 3 steps in the browser (profile → job boards → agent setup).
+> The last step registers your cron jobs and shuts down the server automatically.
+> **You don't need to come back here** — everything is handled in the browser.
 
-### Step 3 — Wait for confirmation
-Wait for the user to say "done" (any variant: "Done", "finished", "ready", etc.).
-Do not prompt with further questions — the form covers everything.
-
-### Step 4 — Stop the web server
-Run: `python3 scripts/onboarding/stop_server.py`
-
-Tell user: "✓ Profile saved"
-
-### Step 7 — Register cron jobs
-Before finishing, register the scheduled jobs by running each of these commands:
-
-```
-openclaw cron add --name jobhunter-morning-scrape --cron "0 7 * * *" --agent jobhunter --message "SYSTEM: Run the job scrape now. Execute: python3 scripts/scraping/run_scrape.py"
-openclaw cron add --name jobhunter-evening-scrape --cron "0 17 * * *" --agent jobhunter --message "SYSTEM: Run the job scrape now. Execute: python3 scripts/scraping/run_scrape.py"
-openclaw cron add --name jobhunter-digest --cron "0 8 * * *" --agent jobhunter --message "SYSTEM: Run the daily digest. Query top new jobs from the last 24 hours (status='new', not 'duplicate') ORDER BY score DESC LIMIT 10. Format and send the digest to the user."
-```
-
-If a job already exists you will get an error — that is fine, skip it.
-Tell the user "✓ Cron jobs registered" once done.
-
-### Step 8 — Finish
-Confirm saved. Tell the user:
-- Scraping runs twice daily (morning and evening)
-- They'll get a digest message each morning with top matches
-- They can say "apply to job #3" at any time
-- Type `/help` to see all commands
-- Use `/onboard` again any time to update your profile
+### Step 3 — Done
+Tell the user: "✓ Setup will complete automatically once you finish the browser steps."
 
 ## Rules
 - Never store the raw LinkedIn paste beyond the temp file
 - Never pass raw profile text to any message sent back to the user
 - If parsing fails, apologise and ask the user to try pasting again
 - Keep all responses short — this is a Telegram chat, not a document
+- Do NOT manually run `openclaw cron add` — cron registration is handled by the web UI

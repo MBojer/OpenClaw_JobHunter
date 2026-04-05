@@ -1,73 +1,64 @@
 # Onboarding
 
-Onboarding collects your professional profile and job preferences.
-It runs once at first launch, and can be re-run any time to update your profile.
+Onboarding collects your professional profile, job preferences, and registers the scheduled agent jobs.
+It runs once at first launch, and can be re-run any time via `/onboard`.
 
 ---
 
 ## How to start
 
-Send `/start` to the Telegram bot.
+Send `/onboard` to the Telegram bot.
+
+The agent generates a one-time PIN and sends you a link to a secure web form.
+Everything is done in the browser — no pasting into Telegram.
 
 ---
 
-## What happens
+## The 3-step browser flow
 
-### 1. Profile intake
-The agent asks you to paste your LinkedIn profile.
+### Step 1 — Profile
 
-**What to paste:** Go to your LinkedIn profile and copy the text from:
-- The "About" section
-- All "Experience" entries
-- The "Skills" section
+Enter your PIN, then set up your professional profile:
 
-You can also paste a raw CV in any format — plain text works best.
+- **Import from CV/LinkedIn** — upload a PDF or DOCX, or paste raw text; Qwen2.5 extracts structured data locally
+- **Fill manually** — enter job titles, experience, skills, education, location
 
-**What happens with it:**
-1. The raw text is sent to **Qwen2.5:7b running locally on your machine**
-2. Qwen extracts structured data: name, title, experience, skills, education
-3. The raw text is never stored in a readable file and never sent to any cloud service
-4. You see a summary and confirm it before anything is saved
+Adjust preferences: job titles you're targeting, salary floor, remote preference, commute limits, excluded keywords, digest size, and minimum score threshold.
 
-### 2. Confirmation
-The agent shows you what was extracted:
-```
-Here's what I extracted:
-Name: Jane Doe
-Current title: Senior Backend Developer
-Experience: 4 roles, most recent: Lead Developer at Acme Corp
-Skills: Python, FastAPI, PostgreSQL, Docker, React, TypeScript, Redis, AWS
-Location: Odense, Denmark
-```
+Click **Validate & Review** to check for issues, then **Save Profile** to continue.
 
-Reply **YES** to save, or tell the agent what to correct.
+### Step 2 — Job Boards
 
-### 3. Preferences
-Four quick questions:
-1. What job titles are you looking for?
-2. Minimum monthly salary (DKK)?
-3. Location(s) and remote preference?
-4. Any keywords to always exclude (e.g. "junior, unpaid")?
+Enable or disable each job board. Configure SearXNG site filtering — choose from curated domains or add your own. Advanced options: search engines, time range, language.
 
-### 4. Done
-Profile is saved to `config/profile.json` and the database.
-Scraping queries are built from your job title preferences.
+Click **Save Settings** to continue.
+
+### Step 3 — Agent Setup
+
+Set the schedule for automated jobs:
+
+| Job | Default | Description |
+|---|---|---|
+| Morning Scrape | 07:00 | Scrapes all active boards and scores postings |
+| Evening Scrape | 17:00 | Second daily pass — can be disabled |
+| Daily Digest | 08:00 | Sends top matches to Telegram |
+
+Adjust times with the hour dropdowns. Toggle the Evening Scrape off if once-daily is enough.
+
+Click **Setup Agent** to register the cron jobs, then **Close & Finish** to shut down the onboarding server.
 
 ---
 
 ## Re-running onboarding
 
-Send `/start` again at any time to update your profile.
-Useful after a promotion, a new skill, or changing job preferences.
-
-Re-running onboarding will **re-score all existing jobs** against your updated profile.
+Send `/onboard` again at any time to update your profile, boards, or schedule.
+Re-running will re-score all existing jobs against your updated profile.
 
 ---
 
 ## Privacy notes
 
-- Your raw LinkedIn paste is processed by **Qwen2.5:7b on your own machine**
+- Raw CV/LinkedIn text is processed by **Qwen2.5:7b on your own machine**
 - The free cloud model (OpenRouter) **never sees** your raw profile
-- Together.ai sees `profile.json` (structured data) only when generating a CV/cover letter
-- The raw input is stored in the `profile.raw_input` DB column (for re-parsing if needed)
-  but is never displayed in chat or logs
+- Together.ai sees `profile.json` (structured data only) when generating a CV/cover letter
+- Raw input is stored in `profile.raw_input` (DB) for re-parsing, never shown in chat

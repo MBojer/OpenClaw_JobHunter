@@ -71,16 +71,15 @@ After installing:
    openclaw gateway
    ```
 
-2. Open your Telegram bot and send `/start`
+2. Open your Telegram bot and send `/onboard`
 
-3. The agent will greet you and ask you to paste your LinkedIn profile.
-   Copy the text from your LinkedIn "About" + "Experience" + "Skills" sections
-   and paste it into the chat.
+3. The agent sends you a link and a one-time PIN.
+   Open the link in your browser and enter the PIN.
 
-4. The agent will show you a structured summary. Confirm it's correct,
-   then answer 4 short preference questions.
+4. Complete the 3-step form: profile → job boards → agent setup.
+   The last step registers your cron jobs and shuts down the server automatically.
 
-5. That's it. The first scrape runs at 07:00, and you'll get a digest at 08:00.
+5. That's it. Scrapes and digest run on the schedule you configured (defaults: 07:00, 17:00, 08:00).
 
 ---
 

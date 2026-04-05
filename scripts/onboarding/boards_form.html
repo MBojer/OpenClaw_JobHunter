@@ -5,68 +5,70 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JobHunter — Job Board Setup</title>
 <style>
+:root{--bg:#f4f4f8;--card:#fff;--text:#1a1a2e;--text-mid:#555;--text-muted:#888;--primary:#4f46e5;--primary-hover:#4338ca;--primary-tint:#ede9fe;--primary-subtle:#fafafe;--border:#ddd;--border-soft:#e8e8f0;--border-faint:#f0f0f6;--input-bg:#fff;--tag-bg:#ede9fe;--tag-text:#5b21b6;--header-bg:#1a1a2e}
+@media(prefers-color-scheme:dark){:root{--bg:#0f0f1a;--card:#1a1a2e;--text:#e2e2f0;--text-mid:#a0a0c0;--text-muted:#9090b0;--primary:#6366f1;--primary-hover:#818cf8;--primary-tint:#1e1b4b;--primary-subtle:#16163a;--border:#2e2e4a;--border-soft:#2e2e4a;--border-faint:#1e1e34;--input-bg:#0d0d1c;--tag-bg:#1e1b4b;--tag-text:#a5b4fc;--header-bg:#0a0a14}}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,-apple-system,sans-serif;background:#f4f4f8;color:#1a1a2e;min-height:100vh}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-.header{background:#1a1a2e;color:#fff;padding:1.5rem 2rem;display:flex;align-items:center;gap:1rem}
+.header{background:var(--header-bg);color:#fff;padding:1.5rem 2rem;display:flex;align-items:center;gap:1rem}
 .header h1{font-size:1.4rem;font-weight:600}
 .header p{opacity:.65;font-size:.875rem;margin-top:.2rem}
 .header-step{font-size:.75rem;background:rgba(255,255,255,.12);padding:.2rem .6rem;border-radius:12px;white-space:nowrap}
 
 .container{max-width:820px;margin:2rem auto;padding:0 1rem 4rem}
 
-.card{background:#fff;border-radius:10px;padding:1.75rem;margin-bottom:1.5rem;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.card h2{font-size:.95rem;font-weight:600;color:#4f46e5;text-transform:uppercase;letter-spacing:.04em;margin-bottom:1.25rem;padding-bottom:.6rem;border-bottom:2px solid #ede9fe}
+.card{background:var(--card);border-radius:10px;padding:1.75rem;margin-bottom:1.5rem;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.card h2{font-size:.95rem;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:1.25rem;padding-bottom:.6rem;border-bottom:2px solid var(--primary-tint)}
 
 .field{margin-bottom:1rem}
 .field:last-child{margin-bottom:0}
-.field label{display:block;font-size:.82rem;font-weight:500;color:#555;margin-bottom:.3rem}
-.field input,.field textarea,.field select{width:100%;padding:.5rem .75rem;border:1px solid #ddd;border-radius:6px;font-size:.9rem;font-family:inherit;color:#1a1a2e;transition:border-color .15s}
-.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+.field label{display:block;font-size:.82rem;font-weight:500;color:var(--text-mid);margin-bottom:.3rem}
+.field input,.field textarea,.field select{width:100%;padding:.5rem .75rem;border:1px solid var(--border);border-radius:6px;font-size:.9rem;font-family:inherit;color:var(--text);background:var(--input-bg);transition:border-color .15s}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,.1)}
 
 /* Tag inputs */
-.tag-wrap{border:1px solid #ddd;border-radius:6px;padding:.35rem .4rem;display:flex;flex-wrap:wrap;gap:.3rem;cursor:text;transition:border-color .15s;min-height:38px;align-items:flex-start}
-.tag-wrap:focus-within{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.1)}
-.tag{background:#ede9fe;color:#5b21b6;border-radius:4px;padding:.15rem .45rem;font-size:.8rem;display:inline-flex;align-items:center;gap:.25rem;white-space:nowrap}
+.tag-wrap{border:1px solid var(--border);border-radius:6px;padding:.35rem .4rem;display:flex;flex-wrap:wrap;gap:.3rem;cursor:text;transition:border-color .15s;min-height:38px;align-items:flex-start;background:var(--input-bg)}
+.tag-wrap:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+.tag{background:var(--tag-bg);color:var(--tag-text);border-radius:4px;padding:.15rem .45rem;font-size:.8rem;display:inline-flex;align-items:center;gap:.25rem;white-space:nowrap}
 .tag .rm{cursor:pointer;opacity:.55;font-size:1rem;line-height:1;padding:0 .1rem}
 .tag .rm:hover{opacity:1}
-.tag-wrap input{border:none;outline:none;font-size:.875rem;min-width:140px;flex:1;padding:.1rem .25rem;background:transparent}
+.tag-wrap input{border:none;outline:none;font-size:.875rem;min-width:140px;flex:1;padding:.1rem .25rem;background:transparent;color:var(--text)}
 
 /* Board toggle rows */
-.board-row{display:flex;align-items:center;gap:1rem;padding:.85rem 0;border-bottom:1px solid #f0f0f6}
+.board-row{display:flex;align-items:center;gap:1rem;padding:.85rem 0;border-bottom:1px solid var(--border-faint)}
 .board-row:last-child{border-bottom:none}
 .board-info{flex:1}
-.board-name{font-size:.95rem;font-weight:500;color:#1a1a2e}
-.board-meta{font-size:.78rem;color:#888;margin-top:.15rem}
+.board-name{font-size:.95rem;font-weight:500;color:var(--text)}
+.board-meta{font-size:.78rem;color:var(--text-muted);margin-top:.15rem}
 .toggle-wrap{display:flex;align-items:center;gap:.5rem}
-.toggle-label{font-size:.82rem;color:#888;width:2.2rem;text-align:right}
+.toggle-label{font-size:.82rem;color:var(--text-muted);width:2.2rem;text-align:right}
 .toggle{position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0}
 .toggle input{opacity:0;width:0;height:0}
-.toggle-slider{position:absolute;inset:0;background:#ddd;border-radius:11px;cursor:pointer;transition:background .2s}
+.toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:11px;cursor:pointer;transition:background .2s}
 .toggle-slider::before{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.toggle input:checked+.toggle-slider{background:#4f46e5}
+.toggle input:checked+.toggle-slider{background:var(--primary)}
 .toggle input:checked+.toggle-slider::before{transform:translateX(18px)}
 
 /* Curated site grid */
 .site-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:.5rem;margin-bottom:1rem}
-.site-check{display:flex;align-items:center;gap:.5rem;padding:.5rem .65rem;border:1px solid #e8e8f0;border-radius:6px;cursor:pointer;transition:all .15s;font-size:.875rem;color:#333}
-.site-check:hover{border-color:#c4b5fd;background:#fafafe}
-.site-check input[type=checkbox]{width:auto;cursor:pointer;accent-color:#4f46e5}
-.site-check.checked{border-color:#c4b5fd;background:#faf8ff}
+.site-check{display:flex;align-items:center;gap:.5rem;padding:.5rem .65rem;border:1px solid var(--border-soft);border-radius:6px;cursor:pointer;transition:all .15s;font-size:.875rem;color:var(--text)}
+.site-check:hover{border-color:#c4b5fd;background:var(--primary-subtle)}
+.site-check input[type=checkbox]{width:auto;cursor:pointer;accent-color:var(--primary)}
+.site-check.checked{border-color:#c4b5fd;background:var(--primary-subtle)}
 
 /* Advanced toggle */
-.advanced-toggle{display:flex;align-items:center;gap:.5rem;background:none;border:none;color:#4f46e5;font-size:.875rem;cursor:pointer;font-family:inherit;padding:.4rem 0;margin-bottom:.5rem}
+.advanced-toggle{display:flex;align-items:center;gap:.5rem;background:none;border:none;color:var(--primary);font-size:.875rem;cursor:pointer;font-family:inherit;padding:.4rem 0;margin-bottom:.5rem}
 .advanced-toggle .arrow{transition:transform .2s;display:inline-block}
 .advanced-toggle.open .arrow{transform:rotate(90deg)}
-#advanced-section{display:none;padding-top:.75rem;border-top:1px solid #f0f0f6;margin-top:.25rem}
+#advanced-section{display:none;padding-top:.75rem;border-top:1px solid var(--border-faint);margin-top:.25rem}
 
 /* Actions */
 .actions{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-top:1.5rem}
-.btn-primary{background:#4f46e5;color:#fff;border:none;padding:.7rem 1.4rem;border-radius:8px;font-size:.95rem;cursor:pointer;font-weight:500;transition:background .15s;display:inline-flex;align-items:center;gap:.4rem}
-.btn-primary:hover:not(:disabled){background:#4338ca}
+.btn-primary{background:var(--primary);color:#fff;border:none;padding:.7rem 1.4rem;border-radius:8px;font-size:.95rem;cursor:pointer;font-weight:500;transition:background .15s;display:inline-flex;align-items:center;gap:.4rem}
+.btn-primary:hover:not(:disabled){background:var(--primary-hover)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
-.btn-ghost{background:#fff;color:#4f46e5;border:1px solid #4f46e5;padding:.7rem 1.4rem;border-radius:8px;font-size:.95rem;cursor:pointer;font-weight:500;transition:all .15s}
-.btn-ghost:hover:not(:disabled){background:#ede9fe}
+.btn-ghost{background:var(--card);color:var(--primary);border:1px solid var(--primary);padding:.7rem 1.4rem;border-radius:8px;font-size:.95rem;cursor:pointer;font-weight:500;transition:all .15s}
+.btn-ghost:hover:not(:disabled){background:var(--primary-tint)}
 
 /* Success inline */
 #save-feedback{font-size:.875rem;color:#15803d;display:none}
@@ -76,7 +78,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f4f4f8;color:#1a
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* Hint text */
-.hint{font-size:.8rem;color:#888;margin-top:.4rem}
+.hint{font-size:.8rem;color:var(--text-muted);margin-top:.4rem}
 </style>
 </head>
 <body>
@@ -86,7 +88,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f4f4f8;color:#1a
     <h1>JobHunter — Job Board Setup</h1>
     <p>Choose which boards to search and configure SearXNG site filtering</p>
   </div>
-  <span class="header-step">Step 2 of 2</span>
+  <span class="header-step">Step 2 of 3</span>
 </div>
 
 <div class="container">
@@ -148,7 +150,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:#f4f4f8;color:#1a
 
   <div class="actions">
     <button class="btn-primary" id="save-btn" onclick="doSave()">Save Settings</button>
-    <a href="/" class="btn-ghost" style="text-decoration:none">Back to Profile</a>
+    <a href="/onboard" class="btn-ghost" style="text-decoration:none">← Back to Profile</a>
     <span id="save-feedback">Settings saved!</span>
   </div>
 
@@ -176,7 +178,7 @@ let customTags = [];
 window.addEventListener('DOMContentLoaded', async () => {
   buildCuratedGrid([]);
   try {
-    const r = await fetch('/boards/status');
+    const r = await fetch('boards/status');
     const data = await r.json();
     renderBoards(data.boards || []);
     populateSiteFilter(data.job_boards || []);
@@ -323,15 +325,14 @@ async function doSave() {
   };
 
   try {
-    const res = await fetch('/boards/save', {
+    const res = await fetch('boards/save', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(payload),
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    feedback.style.display = 'inline';
-    setTimeout(() => { feedback.style.display = 'none'; }, 3000);
+    window.location.href = '/onboard/agent-setup';
   } catch (e) {
     alert('Save failed: ' + e.message);
   } finally {

@@ -9,6 +9,7 @@ Usage:
 """
 import json
 import os
+import secrets
 import signal
 import socket
 import subprocess
@@ -22,6 +23,7 @@ load_dotenv()
 WORKSPACE = Path(__file__).parent.parent.parent
 PID_FILE  = WORKSPACE / "tmp" / "onboarding_server.pid"
 LOCK_FILE = WORKSPACE / "tmp" / "onboarding_active"
+PIN_FILE  = WORKSPACE / "tmp" / "onboarding_pin"
 PORT      = int(os.environ.get("ONBOARDING_PORT", 8080))
 BASE_URL  = os.environ.get("OPENCLAW_BASE_URL", "").rstrip("/")
 
@@ -52,6 +54,9 @@ def _existing_pid() -> int | None:
 def main():
     (WORKSPACE / "tmp").mkdir(exist_ok=True)
 
+    pin = f"{secrets.randbelow(1_000_000):06d}"
+    PIN_FILE.write_text(pin)
+
     existing = _existing_pid()
     already  = existing and _pid_alive(existing) and _port_in_use(PORT)
 
@@ -68,7 +73,7 @@ def main():
     LOCK_FILE.write_text("onboarding_in_progress")
 
     url = f"{BASE_URL}/onboard" if BASE_URL else f"http://localhost:{PORT}"
-    print(json.dumps({"url": url, "port": PORT, "already_running": bool(already)}))
+    print(json.dumps({"url": url, "port": PORT, "already_running": bool(already), "pin": pin}))
 
 
 if __name__ == "__main__":

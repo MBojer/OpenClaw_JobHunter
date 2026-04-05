@@ -4,6 +4,7 @@ Registers JobHunter cron jobs using the OpenClaw CLI.
 Cron jobs are stored in ~/.openclaw/cron/jobs.json — NOT in openclaw.json.
 Also removes any stale 'cron' array previously written to openclaw.json.
 """
+import argparse
 import json
 import subprocess
 import sys
@@ -16,29 +17,42 @@ WORKSPACE   = Path(os.environ.get(
     Path.home() / ".openclaw" / "workspace-jobhunter"
 ))
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--morning",    default="7:00")
+parser.add_argument("--evening",    default="17:00")
+parser.add_argument("--digest",     default="8:00")
+parser.add_argument("--no-evening", action="store_true", dest="no_evening")
+args, _ = parser.parse_known_args()
+
+
+def _cron(hhmm: str) -> str:
+    h, m = hhmm.split(":")
+    return f"{int(m)} {int(h)} * * *"
+
+
 CRON_JOBS = [
     {
         "id":       "jobhunter-morning-scrape",
-        "cron":     "0 7 * * *",
+        "cron":     _cron(args.morning),
         "message":  "SYSTEM: Run the job scrape now. Execute: python3 scripts/scraping/run_scrape.py",
-        "desc":     "JobHunter: morning scrape + score + dedup",
+        "desc":     f"JobHunter: morning scrape + score + dedup ({args.morning})",
     },
-    {
+    *([] if args.no_evening else [{
         "id":       "jobhunter-evening-scrape",
-        "cron":     "0 17 * * *",
+        "cron":     _cron(args.evening),
         "message":  "SYSTEM: Run the job scrape now. Execute: python3 scripts/scraping/run_scrape.py",
-        "desc":     "JobHunter: evening scrape + score + dedup",
-    },
+        "desc":     f"JobHunter: evening scrape + score + dedup ({args.evening})",
+    }]),
     {
         "id":       "jobhunter-digest",
-        "cron":     "0 8 * * *",
+        "cron":     _cron(args.digest),
         "message":  (
             "SYSTEM: Run the daily digest. "
             "Query top new jobs from the last 24 hours "
             "(status='new', not 'duplicate') ORDER BY score DESC LIMIT 10. "
             "Format and send the digest to the user."
         ),
-        "desc":     "JobHunter: daily digest to Telegram",
+        "desc":     f"JobHunter: daily digest to Telegram ({args.digest})",
     },
 ]
 

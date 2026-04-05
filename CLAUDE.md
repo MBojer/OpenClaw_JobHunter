@@ -223,7 +223,7 @@ Gateway must be restarted to pick up changes to AGENTS.md and skill files.
 - **SearXNG** — blocklists iteratively improved via patches. time_range disabled when site_filter is set (combination returns 0 results).
 - **Indeed** — disabled, 403 Forbidden. Covered by SearXNG.
 - **IT-jobbank** — disabled, HTML selectors need updating.
-- **Cron registration** — requires gateway to be running. Agent registers cron during `/onboard`.
+- **Cron registration** — done via the onboarding web UI (Step 3). Times configurable (defaults: morning 07:00, evening 17:00, digest 08:00). Evening scrape can be disabled. Runs `install/setup_cron.py` with `--morning/--evening/--digest/--no-evening` args.
 - **raw.githubusercontent.com CDN lag** — up to 30 min behind actual commits. Always verify file state on the server, not via raw GitHub URLs.
 - **Qdrant semantic dedup** — `scripts/qdrant/qdrant_client.py`. Embeds with `zylonai/multilingual-e5-large:latest` (1024d, requires `OLLAMA_FLASH_ATTENTION=false` on Ollama server). Threshold 0.92 cosine similarity — cleanly separates DA/EN duplicates. Falls back gracefully if Qdrant unavailable.
 - **Commute scoring** — ORS client in `scripts/commute/ors_client.py`. Called from `score_jobs.py` after Qwen scoring. 100km ORS limit means jobs beyond that get `commute_minutes=None`. Score penalised 5pts per 5min over `max_minutes`.
