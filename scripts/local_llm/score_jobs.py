@@ -78,7 +78,7 @@ def parse_json_response(text: str) -> dict | None:
 
 def score_jobs(limit: int = None, rescore: bool = False, job_id: str = None):
     if not is_available():
-        print("ERROR: Ollama is not reachable.")
+        print("ERROR: Processing LLM is not reachable.")
         sys.exit(1)
 
     profile_summary, hard_requirements = load_profile_summary()

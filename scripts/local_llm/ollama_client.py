@@ -69,17 +69,18 @@ def generate(prompt: str, model: str = None, temperature: float = 0.1,
 
 
 def is_available() -> bool:
-    """Quick health check — returns True if the LLM endpoint is reachable."""
-    try:
-        url = f"{PROC_LLM_BASE_URL}/api/tags"
-        headers = {}
-        if PROC_LLM_API_KEY:
-            headers["Authorization"] = f"Bearer {PROC_LLM_API_KEY}"
-        req = urllib.request.Request(url, headers=headers)
-        with urllib.request.urlopen(req, timeout=5):
-            return True
-    except Exception:
-        return False
+    """Quick health check — tries /health (LiteLLM) then /api/tags (Ollama)."""
+    headers = {}
+    if PROC_LLM_API_KEY:
+        headers["Authorization"] = f"Bearer {PROC_LLM_API_KEY}"
+    for path in ("/health", "/api/tags"):
+        try:
+            req = urllib.request.Request(f"{PROC_LLM_BASE_URL}{path}", headers=headers)
+            with urllib.request.urlopen(req, timeout=5):
+                return True
+        except Exception:
+            continue
+    return False
 
 
 def model_is_pulled(model: str = None) -> bool:
